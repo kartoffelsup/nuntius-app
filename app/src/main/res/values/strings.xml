@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">nuntius-app</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="logout_button_text">Logout</string>
+    <string name="messages_label">Messages</string>
+    <string name="button_text_send">Send</string>
+</resources>
