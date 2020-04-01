@@ -2,9 +2,10 @@ package io.github.kartoffelsup.nuntius.ui.components
 
 import androidx.annotation.DrawableRes
 import androidx.compose.Composable
+import androidx.compose.Model
 import androidx.ui.core.Modifier
-import androidx.ui.core.Text
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.layout.*
 import androidx.ui.material.MaterialTheme
@@ -19,6 +20,12 @@ import io.github.kartoffelsup.nuntius.data.user.UserService
 import io.github.kartoffelsup.nuntius.ui.AppState
 import io.github.kartoffelsup.nuntius.ui.Screen
 import io.github.kartoffelsup.nuntius.ui.navigateTo
+import io.github.kartoffelsup.nuntius.ui.user.ContactsView
+
+@Model
+class NuntiusDrawerState(
+    var displayingContacts: Boolean = false
+)
 
 @Composable
 fun AppDrawer(
@@ -26,7 +33,7 @@ fun AppDrawer(
     appState: AppState,
     closeDrawer: () -> Unit
 ) {
-    Column(modifier = LayoutSize.Fill) {
+    Column(modifier = Modifier.fillMaxSize()) {
         DrawerButton(
             icon = R.drawable.ic_outline_home_24,
             label = "Home",
@@ -34,17 +41,6 @@ fun AppDrawer(
         ) {
             navigateTo(Screen.Home)
             closeDrawer()
-        }
-
-        if (appState.userData != null) {
-            DrawerButton(
-                icon = R.drawable.ic_outline_email_24,
-                label = stringResource(R.string.messages_label),
-                isSelected = currentScreen == Screen.Messages
-            ) {
-                navigateTo(Screen.Messages)
-                closeDrawer()
-            }
         }
 
         if (appState.userData == null) {
@@ -57,6 +53,24 @@ fun AppDrawer(
                 closeDrawer()
             }
         } else {
+            DrawerButton(
+                icon = R.drawable.ic_outline_email_24,
+                label = stringResource(R.string.messages_label),
+                isSelected = currentScreen == Screen.Messages
+            ) {
+                navigateTo(Screen.Messages)
+                closeDrawer()
+            }
+            DrawerButton(
+                icon = R.drawable.ic_outline_contacts_24,
+                label = stringResource(R.string.contacts),
+                isSelected = appState.appDrawerState.displayingContacts
+            ) {
+                appState.appDrawerState.displayingContacts = !appState.appDrawerState.displayingContacts
+            }
+            if (appState.appDrawerState.displayingContacts) {
+                ContactsView(appState = appState)
+            }
             DrawerButton(
                 icon = R.drawable.ic_outline_remove_circle_outline_24,
                 label = stringResource(R.string.logout_button_text),
@@ -78,7 +92,7 @@ private fun DrawerButton(
     isSelected: Boolean,
     action: () -> Unit
 ) {
-    val colors = MaterialTheme.colors()
+    val colors = MaterialTheme.colors
     val textIconColor = if (isSelected) {
         colors.primary
     } else {
@@ -91,24 +105,24 @@ private fun DrawerButton(
     }
 
     val surfaceModifier = modifier +
-            LayoutPadding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 0.dp) +
-            LayoutWidth.Fill
+            Modifier.padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 0.dp) +
+            Modifier.fillMaxWidth()
     Surface(
         modifier = surfaceModifier,
         color = backgroundColor,
         shape = RoundedCornerShape(4.dp)
     ) {
-        TextButton(onClick = action, modifier = LayoutWidth.Fill) {
-            Row(arrangement = Arrangement.Start, modifier = LayoutWidth.Fill) {
+        TextButton(onClick = action, modifier = Modifier.fillMaxWidth()) {
+            Row(arrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
                 Icon(
-                    modifier = LayoutGravity.Center + LayoutSize(24.dp),
-                    icon = vectorResource(icon),
+                    modifier = Modifier.gravity(RowAlign.Center) + Modifier.preferredSize(24.dp),
+                    asset = vectorResource(icon),
                     tint = textIconColor
                 )
-                Spacer(LayoutWidth(16.dp))
+                Spacer(Modifier.preferredWidth(16.dp))
                 Text(
                     text = label,
-                    style = (MaterialTheme.typography()).body2.copy(
+                    style = (MaterialTheme.typography).body2.copy(
                         color = textIconColor
                     )
                 )

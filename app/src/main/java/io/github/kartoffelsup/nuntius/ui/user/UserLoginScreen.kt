@@ -4,8 +4,8 @@ package io.github.kartoffelsup.nuntius.ui.user
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.ui.core.Modifier
-import androidx.ui.core.Text
-import androidx.ui.core.currentTextStyle
+import androidx.ui.foundation.Text
+import androidx.ui.foundation.currentTextStyle
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Shape
@@ -111,7 +111,7 @@ fun UserLoginScreen(appState: AppState, modifier: Modifier) {
                     text = loginError.text,
                     style = currentTextStyle().copy(
                         textAlign = TextAlign.Center,
-                        color = MaterialTheme.colors().error
+                        color = MaterialTheme.colors.error
                     )
                 )
             }

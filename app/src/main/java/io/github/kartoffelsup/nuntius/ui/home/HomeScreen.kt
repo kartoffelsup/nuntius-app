@@ -2,21 +2,19 @@ package io.github.kartoffelsup.nuntius.ui.home
 
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.ui.core.*
-import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.VerticalScroller
-import androidx.ui.graphics.Color
+import androidx.ui.core.Alignment
+import androidx.ui.core.Modifier
+import androidx.ui.foundation.Text
+import androidx.ui.foundation.currentTextStyle
 import androidx.ui.layout.*
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.Surface
 import androidx.ui.res.stringResource
 import androidx.ui.text.style.TextAlign
 import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import io.github.kartoffelsup.nuntius.R
-import io.github.kartoffelsup.nuntius.api.user.result.UserContact
 import io.github.kartoffelsup.nuntius.api.user.result.UserContacts
 import io.github.kartoffelsup.nuntius.data.message.MessageService
 import io.github.kartoffelsup.nuntius.data.user.UserData
@@ -46,10 +44,10 @@ fun HomeScreen(appState: AppState, modifier: Modifier, messageHolder: MessageHol
                     )
                 )
             }
-            Spacer(LayoutHeight(16.dp))
+            Spacer(Modifier.preferredHeight(16.dp))
             if (user != null) {
                 CenteredRow {
-                    Button(modifier = LayoutPadding(start = 5.dp, end = 5.dp), onClick = {
+                    Button(modifier = Modifier.padding(start = 5.dp, end = 5.dp), onClick = {
                         GlobalScope.launch {
                             val result = MessageService.send(user.userId, "Hello There!", user)
                             withContext(Dispatchers.Main) {
@@ -68,56 +66,15 @@ fun HomeScreen(appState: AppState, modifier: Modifier, messageHolder: MessageHol
         }
 
         if (user != null) {
-            Column(LayoutSize.Fill + LayoutAlign.Center) {
+            Column(Modifier.fillMaxSize() + Modifier.wrapContentSize(Alignment.Center)) {
                 Text(
-                    modifier = LayoutWidth.Fill + LayoutAlign.Center,
+                    modifier = Modifier.fillMaxWidth() + Modifier.wrapContentSize(Alignment.Center),
                     text = "User",
                     style = currentTextStyle()
                         .copy(fontSize = 24.sp, textAlign = TextAlign.Center)
                 )
                 CenteredRow {
                     UserRow(username = user.username)
-                }
-
-                if (user.contacts.contacts.isNotEmpty()) {
-                    Column {
-                        Text(
-                            modifier = LayoutWidth.Fill,
-                            text = "Contacts",
-                            style = currentTextStyle()
-                                .copy(fontSize = 24.sp, textAlign = TextAlign.Center)
-                        )
-                        VerticalScroller(
-                            modifier = LayoutWidth.Fill + LayoutAlign.Center + LayoutHeight.Max(
-                                100.dp
-                            )
-                        ) {
-                            Column {
-                                user.contacts.contacts.forEach {
-                                    val contactState = ContactState(false)
-                                    Column {
-                                        Clickable(onClick = {
-                                            contactState.open = !contactState.open
-                                        }) {
-                                            UserRow(
-                                                username = it.username
-                                            )
-                                        }
-                                        if (contactState.open) {
-                                            DropdownPopup {
-                                                Surface(color = Color.DarkGray) {
-                                                    Column() {
-                                                        Text("Hello")
-                                                        Text("Bye")
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
                 }
             }
         }
@@ -137,21 +94,7 @@ fun HomePreview() {
                     "",
                     "marvin",
                     "Marvin1",
-                    UserContacts(
-                        listOf(
-                            UserContact("id", "Contact1"),
-                            UserContact("id", "Contact2"),
-                            UserContact("id", "Contact3"),
-                            UserContact("id", "Contact4"),
-                            UserContact("id", "Contact5"),
-                            UserContact("id", "Contact1"),
-                            UserContact("id", "Contact2"),
-                            UserContact("id", "Contact3"),
-                            UserContact("id", "Contact4"),
-                            UserContact("id", "Contact5"),
-                            UserContact("id", "Contact6")
-                        )
-                    )
+                    UserContacts(listOf())
                 )
             ),
             Modifier.None,

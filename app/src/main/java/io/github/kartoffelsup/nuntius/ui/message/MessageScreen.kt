@@ -2,22 +2,24 @@ package io.github.kartoffelsup.nuntius.ui.message
 
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.ui.core.TextField
-import androidx.ui.core.currentTextStyle
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.Text
+import androidx.ui.foundation.TextField
+import androidx.ui.foundation.currentTextStyle
 import androidx.ui.graphics.Color
-import androidx.ui.input.ImeAction
 import androidx.ui.layout.*
 import androidx.ui.material.Divider
 import androidx.ui.res.vectorResource
 import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
 import io.github.kartoffelsup.nuntius.R
+import io.github.kartoffelsup.nuntius.api.user.result.UserContact
 import io.github.kartoffelsup.nuntius.ui.components.CenteredRow
 import io.github.kartoffelsup.nuntius.ui.user.SubmitButton
 import io.github.kartoffelsup.nuntius.ui.user.SubmitButtonState
 
-sealed class Message() {
+sealed class Message {
     abstract val text: String
 }
 
@@ -32,14 +34,18 @@ class MessageFieldState(
 
 @Model
 class MessageScreenState(
-    val messages: List<Message>,
+    var currentConversationPartner: UserContact? = null,
+    val messages: List<Message> = listOf(),
     val messageFieldState: MessageFieldState = MessageFieldState()
 )
 
 @Composable
 fun MessageScreen(state: MessageScreenState) {
+    Column {
+        Text(text = "Chatting with: ${state.currentConversationPartner?.username}")
+    }
     Column(
-        modifier = LayoutSize.Fill + LayoutPadding(5.dp),
+        modifier = Modifier.fillMaxSize() + Modifier.padding(5.dp),
         arrangement = Arrangement.Bottom
     ) {
         Column {
@@ -57,7 +63,7 @@ fun MessageScreen(state: MessageScreenState) {
                     textColor = Color(0xFFBF360C)
                 }
                 Row(
-                    modifier = LayoutWidth.Fill,
+                    modifier = Modifier.fillMaxWidth(),
                     arrangement = arrangement
                 ) {
                     TextMessageView(
@@ -71,13 +77,13 @@ fun MessageScreen(state: MessageScreenState) {
         Divider(
             height = 1.5.dp,
             color = Color(0xFF7C4DFF),
-            modifier = LayoutPadding(5.dp)
+            modifier = Modifier.padding(5.dp)
         )
         CenteredRow(
-            modifier = LayoutGravity.Center
+            modifier = Modifier.gravity(ColumnAlign.Center)
         ) {
             TextField(
-                modifier = LayoutPadding(5.dp) + LayoutWeight(85f),
+                modifier = Modifier.padding(5.dp) + Modifier.weight(85f),
                 value = if (state.messageFieldState.initial) {
                     "Enter message here..."
                 } else {
@@ -93,11 +99,11 @@ fun MessageScreen(state: MessageScreenState) {
                 state = SubmitButtonState(
                     enabled = state.messageFieldState.value.isNotEmpty()
                 ),
-                modifier = LayoutWeight(15f)
+                modifier = Modifier.weight(15f)
             ) {
                 Icon(
-                    icon = vectorResource(R.drawable.ic_outline_navigation_24),
-                    modifier = LayoutSize.Min(16.dp)
+                    asset = vectorResource(R.drawable.ic_outline_navigation_24),
+                    modifier = Modifier.preferredSizeIn(minWidth = 16.dp, minHeight = 16.dp)
                 )
             }
         }
@@ -109,6 +115,7 @@ fun MessageScreen(state: MessageScreenState) {
 fun MessageScreenPreview() {
     MessageScreen(
         MessageScreenState(
+            UserContact("id", "Michelle"),
             listOf(
                 UserMessage("Hi"),
                 ConversationPartnerMessage("Hi"),

@@ -1,8 +1,8 @@
 package io.github.kartoffelsup.nuntius.ui.user
 
 import androidx.compose.Composable
-import androidx.ui.core.Text
-import androidx.ui.core.currentTextStyle
+import androidx.ui.foundation.Text
+import androidx.ui.foundation.currentTextStyle
 import androidx.ui.foundation.Icon
 import androidx.ui.graphics.Color
 import androidx.ui.layout.*
@@ -15,11 +15,11 @@ import io.github.kartoffelsup.nuntius.R
 @Composable
 fun UserRow(
     username: String,
-    color: Color = MaterialTheme.colors().secondary
+    color: Color = MaterialTheme.colors.secondary
 ) {
     Row {
         Icon(
-            icon = vectorResource(R.drawable.ic_outline_person_outline_24),
+            asset = vectorResource(R.drawable.ic_outline_person_outline_24),
             modifier = LayoutSize(20.dp, 20.dp) + LayoutAlign.Center,
             tint = color
         )

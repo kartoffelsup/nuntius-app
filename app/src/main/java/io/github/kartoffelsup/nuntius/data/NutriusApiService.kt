@@ -44,7 +44,7 @@ object NutriusApiService {
             }
             val call = okHttpClient.newCall(
                 Request.Builder()
-                    .url("http://<url>:<port>/$path")
+                    .url("http://192.168.5.248:8080/$path")
                     .method(method, requestSerializer?.let {
                         request?.let {
                             JsonHolder.json.stringify(requestSerializer, request)

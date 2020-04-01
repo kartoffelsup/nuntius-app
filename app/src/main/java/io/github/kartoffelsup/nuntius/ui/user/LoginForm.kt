@@ -1,12 +1,10 @@
 package io.github.kartoffelsup.nuntius.ui.user
 
-import androidx.annotation.StringRes
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.ui.core.*
-import androidx.ui.foundation.Border
-import androidx.ui.foundation.DrawBorder
-import androidx.ui.foundation.Icon
+import androidx.ui.core.FocusManagerAmbient
+import androidx.ui.core.Modifier
+import androidx.ui.foundation.*
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.input.ImeAction
@@ -71,7 +69,7 @@ fun LoginForm(formState: LoginFormState) {
             formState.onSubmit
         )
 
-        Row(LayoutWidth.Fill, arrangement = Arrangement.Center) {
+        Row(Modifier.fillMaxWidth(), arrangement = Arrangement.Center) {
             val formValid =         formState.fieldStates.all {
                 it.validationState.valid
             }
@@ -143,7 +141,7 @@ fun SubmitButton(
     modifier: Modifier = Modifier.None,
     children: @Composable() () -> Unit
 ) {
-    val color = if (state.enabled) MaterialTheme.colors().primary else Color.LightGray
+    val color = if (state.enabled) MaterialTheme.colors.primary else Color.LightGray
     Button(
         modifier =  modifier,
         backgroundColor = color,
@@ -170,7 +168,7 @@ private fun FormField(
     imeAction: ImeAction = ImeAction.Unspecified,
     onImeActionPerformed: (ImeAction) -> Unit = {}
 ) {
-    val colors = MaterialTheme.colors()
+    val colors = MaterialTheme.colors
     val borderColor = when {
         fieldState.touched && fieldState.validationState.valid -> {
             colors.secondary
@@ -179,19 +177,19 @@ private fun FormField(
         else -> colors.error
     }
 
-    Row(modifier = LayoutPadding(16.dp)) {
+    Row(modifier = Modifier.padding(16.dp)) {
         Column {
             Row {
                 vectorImage?.let {
-                    Icon(icon = it)
+                    Icon(asset = it)
                 }
-                Divider(LayoutWidth(3.dp))
+                Divider(Modifier.preferredWidth(3.dp))
                 Text(name)
             }
             Row {
                 TextField(
                     value = fieldState.value,
-                    modifier = LayoutWeight(14f) + DrawBorder(
+                    modifier = Modifier.weight(14f) + DrawBorder(
                         Border(2.dp, borderColor),
                         Underline
                     ),
@@ -221,18 +219,18 @@ private fun FormField(
                     if (fieldState.touched.not()) {
                         Color.LightGray
                     } else if (!fieldState.validationState.valid) {
-                        MaterialTheme.colors().error
+                        MaterialTheme.colors.error
                     } else {
                         Color.Green
                     }
 
                 val icon = @Composable {
                     Icon(
-                        modifier = LayoutGravity.Center +
-                                LayoutWeight(2f) +
-                                LayoutPadding(2.dp) +
-                                LayoutSize.Max(32.dp),
-                        icon = vectorResource(id = R.drawable.ic_baseline_error_outline_24),
+                        modifier = Modifier.gravity(RowAlign.Center) +
+                                Modifier.weight(2f) +
+                                Modifier.padding(2.dp) +
+                                Modifier.preferredSizeIn(maxWidth = 32.dp, maxHeight = 32.dp),
+                        asset = vectorResource(id = R.drawable.ic_baseline_error_outline_24),
                         tint = iconColor
                     )
                 }
@@ -243,11 +241,11 @@ private fun FormField(
                 Row {
                     NuntiusPopup(
                         fieldState.validationState.displayErrorPopup,
-                        color = MaterialTheme.colors().background
+                        color = MaterialTheme.colors.background
                     ) {
                         Text(
                             text = fieldState.validationState.errorMessage ?: "",
-                            style = currentTextStyle().copy(color = MaterialTheme.colors().error)
+                            style = currentTextStyle().copy(color = MaterialTheme.colors.error)
                         )
                     }
                 }
