@@ -1,6 +1,8 @@
 package io.github.kartoffelsup.nuntius.ui.user
 
 import androidx.compose.Composable
+import androidx.ui.core.Alignment
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.currentTextStyle
 import androidx.ui.foundation.Icon
@@ -20,7 +22,8 @@ fun UserRow(
     Row {
         Icon(
             asset = vectorResource(R.drawable.ic_outline_person_outline_24),
-            modifier = LayoutSize(20.dp, 20.dp) + LayoutAlign.Center,
+            modifier = Modifier.preferredSize(20.dp, 20.dp)
+                .wrapContentSize(Alignment.Center),
             tint = color
         )
         Text(

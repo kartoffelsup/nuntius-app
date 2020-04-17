@@ -20,7 +20,7 @@ fun NuntiusPopup(
     children: @Composable() ColumnScope.() -> Unit
 ) {
     if (open) {
-        DropdownPopup(dropDownAlignment = DropDownAlignment.Left) {
+        DropdownPopup(dropDownAlignment = DropDownAlignment.Start) {
             Surface(color = color) {
                 Column() {
                     children()

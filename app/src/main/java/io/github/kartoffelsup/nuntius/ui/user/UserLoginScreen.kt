@@ -5,6 +5,7 @@ import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.currentTextStyle
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Outline
@@ -60,7 +61,7 @@ fun UserLoginScreen(appState: AppState, modifier: Modifier) {
     val emailFieldState =
         FieldState(
             id = "emailField",
-            value = "",
+            value = TextFieldValue(""),
             validate = { value ->
                 when {
                     value.isEmpty() -> ValidationResult.Invalid("This field is required.")
@@ -72,7 +73,7 @@ fun UserLoginScreen(appState: AppState, modifier: Modifier) {
     val passwordFieldState =
         FieldState(
             id = "passwordField",
-            value = "",
+            value = TextFieldValue(""),
             validate = { value ->
                 when {
                     value.isEmpty() -> ValidationResult.Invalid("This field is required.")
@@ -90,7 +91,7 @@ fun UserLoginScreen(appState: AppState, modifier: Modifier) {
             val pw = passwordFieldState.value
 
             GlobalScope.launch {
-                val result: LoginResult = UserService.login(mail, pw)
+                val result: LoginResult = UserService.login(mail.text, pw.text)
                 withContext(Dispatchers.Main) {
                     when (result) {
                         is SuccessfulLogin -> {
@@ -122,5 +123,5 @@ fun UserLoginScreen(appState: AppState, modifier: Modifier) {
 @Preview
 @Composable
 fun LoginPreview() {
-    UserLoginScreen(AppState(), Modifier.None)
+    UserLoginScreen(AppState(), Modifier)
 }

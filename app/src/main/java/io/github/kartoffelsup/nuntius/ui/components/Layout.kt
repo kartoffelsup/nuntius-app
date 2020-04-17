@@ -6,8 +6,8 @@ import androidx.ui.layout.*
 
 @Composable
 fun CenteredRow(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() RowScope.() -> Unit
 ) {
-    Row(modifier + Modifier.fillMaxWidth(), arrangement = Arrangement.Center, children = children)
+    Row(modifier + Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, children = children)
 }

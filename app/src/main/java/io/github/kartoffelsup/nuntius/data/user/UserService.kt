@@ -9,9 +9,12 @@ import io.github.kartoffelsup.nuntius.api.user.result.FailedLogin
 import io.github.kartoffelsup.nuntius.api.user.result.LoginResult
 import io.github.kartoffelsup.nuntius.api.user.result.SuccessfulLogin
 import io.github.kartoffelsup.nuntius.api.user.result.UserContacts
+import io.github.kartoffelsup.nuntius.client.ApiResult
+import io.github.kartoffelsup.nuntius.client.Failure
+import io.github.kartoffelsup.nuntius.client.Success
 import io.github.kartoffelsup.nuntius.data.Login
 import io.github.kartoffelsup.nuntius.data.Logout
-import io.github.kartoffelsup.nuntius.data.NutriusApiService
+import io.github.kartoffelsup.nuntius.data.nuntiusApiService
 import kotlinx.serialization.builtins.serializer
 import org.greenrobot.eventbus.EventBus
 
@@ -21,32 +24,35 @@ object UserService {
 
     suspend fun login(email: String, password: String): LoginResult {
         val request = LoginRequest(email, password)
-        val loginEither = NutriusApiService.post(
+        val apiResult = nuntiusApiService.post(
             "user/login",
             request,
             LoginRequest.serializer(),
             SuccessfulLogin.serializer()
         )
 
-        val result = when (loginEither) {
-            is Either.Right -> {
-                val login = loginEither.b
-                val contactsEither = getContacts(login.token)
-                contactsEither.map { contacts ->
-                    login toT UserData(
-                        login.token,
-                        login.userId,
-                        login.username,
-                        contacts
-                    )
-                }
-            }
-            is Either.Left -> loginEither
+        val loginResult: LoginResult = when (apiResult) {
+            is Success<*> -> apiResult.payload as SuccessfulLogin
+            is Failure -> FailedLogin(apiResult.reason)
         }
 
-        return result
-            .map { bus.post(Login(it.b)); it.a }
-            .getOrHandle { FailedLogin(it) }
+        when (loginResult) {
+            is SuccessfulLogin -> {
+                when (val contactsResult = getContacts(loginResult.token)) {
+                    is Success<*> -> {
+                        val contacts = contactsResult.payload as UserContacts
+                        val user = UserData(
+                            loginResult.token,
+                            loginResult.userId,
+                            loginResult.username,
+                            contacts
+                        )
+                        bus.post(Login(user))
+                    }
+                }
+            }
+        }
+        return loginResult
     }
 
     fun logout() {
@@ -54,18 +60,21 @@ object UserService {
     }
 
     suspend fun updateToken(token: String, credentials: UserData): Either<String, String> {
-        val result = NutriusApiService.post(
+        val result = nuntiusApiService.post(
             "user/notification-token",
             UpdateNotificationTokenRequest(token),
             UpdateNotificationTokenRequest.serializer(),
             String.serializer(),
             credentials = credentials.token
         )
-        return result
+        return when(result) {
+            is Success<*> -> (result.payload as String).right()
+            is Failure -> result.reason.left()
+        }
     }
 
-    private suspend fun getContacts(credentials: String): Either<String, UserContacts> {
-        return NutriusApiService.get(
+    private suspend fun getContacts(credentials: String): ApiResult {
+        return nuntiusApiService.get(
             "user/contacts",
             UserContacts.serializer(),
             credentials = credentials

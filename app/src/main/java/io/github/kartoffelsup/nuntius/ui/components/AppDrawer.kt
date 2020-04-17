@@ -3,11 +3,13 @@ package io.github.kartoffelsup.nuntius.ui.components
 import androidx.annotation.DrawableRes
 import androidx.compose.Composable
 import androidx.compose.Model
+import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.layout.*
+import androidx.ui.layout.RowScope.gravity
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.material.TextButton
@@ -86,7 +88,7 @@ fun AppDrawer(
 
 @Composable
 private fun DrawerButton(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
     label: String,
     isSelected: Boolean,
@@ -113,9 +115,10 @@ private fun DrawerButton(
         shape = RoundedCornerShape(4.dp)
     ) {
         TextButton(onClick = action, modifier = Modifier.fillMaxWidth()) {
-            Row(arrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
+            Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
                 Icon(
-                    modifier = Modifier.gravity(RowAlign.Center) + Modifier.preferredSize(24.dp),
+                    modifier = Modifier.gravity(Alignment.CenterVertically)
+                        .preferredSize(24.dp),
                     asset = vectorResource(icon),
                     tint = textIconColor
                 )

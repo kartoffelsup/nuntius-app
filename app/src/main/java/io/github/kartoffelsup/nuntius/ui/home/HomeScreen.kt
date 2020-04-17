@@ -97,7 +97,7 @@ fun HomePreview() {
                     UserContacts(listOf())
                 )
             ),
-            Modifier.None,
+            Modifier,
             MessageHolder("hello there")
         )
     }

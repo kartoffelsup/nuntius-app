@@ -2,6 +2,7 @@ package io.github.kartoffelsup.nuntius.ui.user
 
 import androidx.compose.Composable
 import androidx.compose.Model
+import androidx.ui.core.Alignment
 import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.*
@@ -48,7 +49,7 @@ class ValidationState(
 class FieldState constructor(
     val id: String,
     val validate: (String) -> ValidationResult,
-    var value: String,
+    var value: TextFieldValue,
     val validationState: ValidationState = ValidationState(
         valid = false,
         errorMessage = null,
@@ -69,8 +70,8 @@ fun LoginForm(formState: LoginFormState) {
             formState.onSubmit
         )
 
-        Row(Modifier.fillMaxWidth(), arrangement = Arrangement.Center) {
-            val formValid =         formState.fieldStates.all {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            val formValid = formState.fieldStates.all {
                 it.validationState.valid
             }
 
@@ -79,7 +80,7 @@ fun LoginForm(formState: LoginFormState) {
                     enabled = formValid,
                     validate = {
                         formState.fieldStates.all {
-                            it.validate(it.value)
+                            it.validate(it.value.text)
                             it.touched = true
                             it.validationState.valid
                         }
@@ -131,19 +132,19 @@ fun PasswordFormField(formState: LoginFormState, onSubmit: () -> Unit) {
 @Model
 class SubmitButtonState(
     var enabled: Boolean,
-    val validate: () -> Boolean = {true}
+    val validate: () -> Boolean = { true }
 )
 
 @Composable
 fun SubmitButton(
     state: SubmitButtonState,
     onSubmit: () -> Unit = {},
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() () -> Unit
 ) {
     val color = if (state.enabled) MaterialTheme.colors.primary else Color.LightGray
     Button(
-        modifier =  modifier,
+        modifier = modifier,
         backgroundColor = color,
         onClick = {
             state.validate()
@@ -189,10 +190,11 @@ private fun FormField(
             Row {
                 TextField(
                     value = fieldState.value,
-                    modifier = Modifier.weight(14f) + DrawBorder(
-                        Border(2.dp, borderColor),
-                        Underline
-                    ),
+                    modifier = Modifier.weight(14f)
+                        .drawBorder(
+                            Border(2.dp, borderColor),
+                            Underline
+                        ),
                     focusIdentifier = fieldState.id,
                     keyboardType = keyboardType,
                     imeAction = imeAction,
@@ -205,7 +207,7 @@ private fun FormField(
                     },
                     onValueChange = { newValue ->
                         fieldState.touched = true
-                        val validationResult = fieldState.validate(newValue)
+                        val validationResult = fieldState.validate(newValue.text)
                         fieldState.validationState.valid =
                             validationResult == ValidationResult.Valid
                         fieldState.validationState.errorMessage =
@@ -226,7 +228,7 @@ private fun FormField(
 
                 val icon = @Composable {
                     Icon(
-                        modifier = Modifier.gravity(RowAlign.Center) +
+                        modifier = Modifier.gravity(Alignment.CenterVertically) +
                                 Modifier.weight(2f) +
                                 Modifier.padding(2.dp) +
                                 Modifier.preferredSizeIn(maxWidth = 32.dp, maxHeight = 32.dp),

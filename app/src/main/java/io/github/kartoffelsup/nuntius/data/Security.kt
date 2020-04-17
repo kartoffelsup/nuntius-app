@@ -7,8 +7,7 @@ import androidx.security.crypto.MasterKeys
 import io.github.kartoffelsup.nuntius.api.user.result.UserContact
 import io.github.kartoffelsup.nuntius.api.user.result.UserContacts
 import io.github.kartoffelsup.nuntius.data.user.UserData
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -44,23 +43,24 @@ object Security {
 
     @Subscribe(threadMode = ThreadMode.MAIN, priority = 99)
     fun storeUser(event: Login) {
-        val contacts = event.userData.contacts.contacts.map {
-            """{
-                "userId": "${it.userId}",
-                "username": "${it.username}"
-               }
-            """.trimIndent()
+        val contacts = jsonArray {
+            event.userData.contacts.contacts.map {
+                +json {
+                    "userId" to it.userId
+                    "username" to it.username
+                }
+            }
+        }
+        val userJson: JsonObject = json {
+            "token" to event.userData.token
+            "userId" to event.userData.userId
+            "username" to event.userData.username
+            "contacts" to contacts
         }
         sharedPreferences.edit()
             .putString(
                 USER_ALIAS,
-                """{
-                    |"token": "${event.userData.token}", 
-                    |"userId":"${event.userData.userId}", 
-                    |"username": "${event.userData.username}", 
-                    |"contacts":  [${contacts.takeIf { it.isNotEmpty() }
-                    ?.joinToString() ?: ""}]
-                |}""".trimMargin()
+                jsonx.stringify(JsonObject.serializer(), userJson)
             )
             .apply()
     }
@@ -68,7 +68,7 @@ object Security {
     fun getUser(): UserData? {
         val storedData = sharedPreferences.getString(USER_ALIAS, null)
         return storedData?.let {
-            JsonHolder.json.parseJson(it)
+            jsonx.parseJson(it)
                 .takeIf { json -> json is JsonObject }
                 ?.let { json: JsonElement -> json.jsonObject }
                 ?.let { json ->

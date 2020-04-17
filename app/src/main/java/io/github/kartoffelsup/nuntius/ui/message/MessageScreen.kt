@@ -2,11 +2,9 @@ package io.github.kartoffelsup.nuntius.ui.message
 
 import androidx.compose.Composable
 import androidx.compose.Model
+import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.TextField
-import androidx.ui.foundation.currentTextStyle
+import androidx.ui.foundation.*
 import androidx.ui.graphics.Color
 import androidx.ui.layout.*
 import androidx.ui.material.Divider
@@ -29,7 +27,7 @@ data class ConversationPartnerMessage(override val text: String) : Message()
 @Model
 class MessageFieldState(
     var initial: Boolean = true,
-    var value: String = ""
+    var value: TextFieldValue = TextFieldValue("")
 )
 
 @Model
@@ -46,7 +44,7 @@ fun MessageScreen(state: MessageScreenState) {
     }
     Column(
         modifier = Modifier.fillMaxSize() + Modifier.padding(5.dp),
-        arrangement = Arrangement.Bottom
+        verticalArrangement = Arrangement.Bottom
     ) {
         Column {
             state.messages.forEach {
@@ -64,7 +62,7 @@ fun MessageScreen(state: MessageScreenState) {
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    arrangement = arrangement
+                    horizontalArrangement = arrangement
                 ) {
                     TextMessageView(
                         text = it.text,
@@ -75,17 +73,17 @@ fun MessageScreen(state: MessageScreenState) {
             }
         }
         Divider(
-            height = 1.5.dp,
+            thickness = 1.5.dp,
             color = Color(0xFF7C4DFF),
             modifier = Modifier.padding(5.dp)
         )
         CenteredRow(
-            modifier = Modifier.gravity(ColumnAlign.Center)
+            modifier = Modifier.gravity(Alignment.CenterHorizontally)
         ) {
             TextField(
                 modifier = Modifier.padding(5.dp) + Modifier.weight(85f),
                 value = if (state.messageFieldState.initial) {
-                    "Enter message here..."
+                    TextFieldValue("Enter message here...")
                 } else {
                     state.messageFieldState.value
                 },
@@ -97,7 +95,7 @@ fun MessageScreen(state: MessageScreenState) {
             )
             SubmitButton(
                 state = SubmitButtonState(
-                    enabled = state.messageFieldState.value.isNotEmpty()
+                    enabled = state.messageFieldState.value.text.isNotEmpty()
                 ),
                 modifier = Modifier.weight(15f)
             ) {

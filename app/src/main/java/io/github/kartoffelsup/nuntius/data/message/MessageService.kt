@@ -1,9 +1,14 @@
 package io.github.kartoffelsup.nuntius.data.message
 
 import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import io.github.kartoffelsup.nuntius.api.message.request.SendMessageRequest
 import io.github.kartoffelsup.nuntius.api.message.result.SendMessageResult
-import io.github.kartoffelsup.nuntius.data.NutriusApiService
+import io.github.kartoffelsup.nuntius.client.ApiResult
+import io.github.kartoffelsup.nuntius.client.Failure
+import io.github.kartoffelsup.nuntius.client.Success
+import io.github.kartoffelsup.nuntius.data.nuntiusApiService
 import io.github.kartoffelsup.nuntius.data.user.UserData
 
 object MessageService {
@@ -12,7 +17,7 @@ object MessageService {
         message: String,
         credentials: UserData
     ): Either<String, SendMessageResult> {
-        return NutriusApiService.post(
+        val post: ApiResult = nuntiusApiService.post(
             path = "message",
             request = SendMessageRequest(
                 text = message,
@@ -23,5 +28,9 @@ object MessageService {
             responseSerializer = SendMessageResult.serializer(),
             credentials = credentials.token
         )
+        return when(post) {
+            is Success<*> -> (post.payload as SendMessageResult).right()
+            is Failure -> post.reason.left()
+        }
     }
 }

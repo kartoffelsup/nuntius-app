@@ -10,6 +10,7 @@ import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.layout.*
+import androidx.ui.layout.RowScope.gravity
 import androidx.ui.material.*
 import androidx.ui.res.stringResource
 import androidx.ui.res.vectorResource
@@ -55,9 +56,9 @@ fun NutriusApp(appState: AppState) {
                 topAppBar = {
                     TopAppBar(
                         modifier = Modifier.preferredHeightIn(maxHeight = 32.dp),
-                        color = MaterialTheme.colors.primaryVariant
+                        backgroundColor = MaterialTheme.colors.primaryVariant
                     ) {
-                        Row(modifier = Modifier.fillMaxWidth(), arrangement = Arrangement.Center) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                             Clickable(onClick = {
                                 appState.scaffoldState.drawerState = DrawerState.Opened
                             }) {
@@ -71,9 +72,8 @@ fun NutriusApp(appState: AppState) {
                             }
                             Text(
                                 text = stringResource(appState.titleResource),
-                                modifier = Modifier.wrapContentSize(Alignment.Center) + Modifier.gravity(
-                                    RowAlign.Center
-                                )
+                                modifier = Modifier.wrapContentSize(Alignment.Center)
+                                    .gravity(Alignment.CenterVertically)
                             )
                         }
                     }
