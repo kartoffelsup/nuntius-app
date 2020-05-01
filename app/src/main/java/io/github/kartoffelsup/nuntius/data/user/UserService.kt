@@ -1,8 +1,8 @@
 package io.github.kartoffelsup.nuntius.data.user
 
-import arrow.core.*
-import arrow.core.extensions.fx
-import arrow.fx.IO
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import io.github.kartoffelsup.nuntius.api.user.request.LoginRequest
 import io.github.kartoffelsup.nuntius.api.user.request.UpdateNotificationTokenRequest
 import io.github.kartoffelsup.nuntius.api.user.result.FailedLogin

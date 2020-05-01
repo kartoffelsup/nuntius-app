@@ -88,7 +88,7 @@ fun MessageScreen(state: MessageScreenState) {
                     state.messageFieldState.value
                 },
                 textStyle = currentTextStyle(),
-                onFocus = {
+                onFocusChange = {
                     state.messageFieldState.initial = false
                 },
                 onValueChange = { text -> state.messageFieldState.value = text }

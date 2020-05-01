@@ -199,11 +199,8 @@ private fun FormField(
                     keyboardType = keyboardType,
                     imeAction = imeAction,
                     onImeActionPerformed = onImeActionPerformed,
-                    onFocus = {
-                        fieldState.focused = true
-                    },
-                    onBlur = {
-                        fieldState.focused = false
+                    onFocusChange = {
+                        fieldState.focused = it
                     },
                     onValueChange = { newValue ->
                         fieldState.touched = true

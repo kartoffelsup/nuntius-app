@@ -38,6 +38,8 @@
 -keepclasseswithmembers class io.github.kartoffelsup.nuntius.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
--keepclassmembers class io.github.kartoffelsup.nuntius.client.NuntiusApiService {
+-keep class io.github.kartoffelsup.nuntius.client.NuntiusApiService {
     *;
 }
+-verbose
+-printusage
