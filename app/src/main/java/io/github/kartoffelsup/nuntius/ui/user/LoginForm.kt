@@ -1,17 +1,16 @@
 package io.github.kartoffelsup.nuntius.ui.user
 
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.ui.core.Alignment
-import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.*
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.vector.VectorAsset
-import androidx.ui.input.ImeAction
-import androidx.ui.input.KeyboardType
-import androidx.ui.input.PasswordVisualTransformation
-import androidx.ui.input.VisualTransformation
+import androidx.ui.input.*
+import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.*
 import androidx.ui.material.Button
 import androidx.ui.material.Divider
@@ -35,29 +34,34 @@ class LoginFormState(
         emailFieldState,
         passwordFieldState
     ),
-    val onSubmit: () -> Unit
+    val onSubmit:  () -> Unit
 )
 
-@Model
 class ValidationState(
-    var valid: Boolean,
-    var errorMessage: String?,
+    valid: Boolean,
+    errorMessage: String?,
     val displayErrorPopup: Boolean = errorMessage != null
-)
+) {
+    var valid by mutableStateOf(valid)
+    var errorMessage by mutableStateOf(errorMessage)
+}
 
-@Model
-class FieldState constructor(
+class FieldState(
     val id: String,
     val validate: (String) -> ValidationResult,
-    var value: TextFieldValue,
+    value: TextFieldValue,
     val validationState: ValidationState = ValidationState(
         valid = false,
         errorMessage = null,
         displayErrorPopup = true
     ),
-    var touched: Boolean = false,
-    var focused: Boolean = false
-)
+    touched: Boolean = false,
+    focused: Boolean = false
+) {
+    var value by mutableStateOf(value)
+    var touched by mutableStateOf(touched)
+    var focused by mutableStateOf(focused)
+}
 
 @Composable
 fun LoginForm(formState: LoginFormState) {
@@ -96,7 +100,6 @@ fun LoginForm(formState: LoginFormState) {
 
 @Composable
 fun EmailFormField(formState: LoginFormState) {
-    val focusManager = FocusManagerAmbient.current
     FormField(
         name = stringResource(R.string.prompt_email),
         fieldState = formState.emailFieldState,
@@ -106,7 +109,7 @@ fun EmailFormField(formState: LoginFormState) {
         imeAction = ImeAction.Next,
         onImeActionPerformed = { action ->
             if (action == ImeAction.Next) {
-                focusManager.requestFocusById(formState.passwordFieldState.id)
+                // TODO request focus for password field via modifier?!
             }
         }
     )
@@ -129,8 +132,7 @@ fun PasswordFormField(formState: LoginFormState, onSubmit: () -> Unit) {
     )
 }
 
-@Model
-class SubmitButtonState(
+data class SubmitButtonState(
     var enabled: Boolean,
     val validate: () -> Boolean = { true }
 )
@@ -195,7 +197,6 @@ private fun FormField(
                             Border(2.dp, borderColor),
                             Underline
                         ),
-                    focusIdentifier = fieldState.id,
                     keyboardType = keyboardType,
                     imeAction = imeAction,
                     onImeActionPerformed = onImeActionPerformed,
@@ -212,7 +213,7 @@ private fun FormField(
                                 ?.let { (it as ValidationResult.Invalid).reason }
                         fieldState.value = newValue
                     },
-                    visualTransformation = visualTransformation
+                    visualTransformation = visualTransformation ?: VisualTransformation.None
                 )
                 val iconColor =
                     if (fieldState.touched.not()) {

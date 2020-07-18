@@ -1,6 +1,7 @@
 package io.github.kartoffelsup.nuntius.ui
 
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.ui.core.setContent
 import io.github.kartoffelsup.nuntius.data.Login
@@ -12,6 +13,7 @@ import org.greenrobot.eventbus.ThreadMode
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appState: AppState
+    private val navigationViewModel by viewModels<NavigationViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         EventBus.getDefault().register(this)
@@ -20,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         appState = AppState(Security.getUser())
 
         setContent {
-            NutriusApp(appState)
+            NutriusApp(appState, navigationViewModel)
         }
     }
 
@@ -32,6 +34,12 @@ class MainActivity : AppCompatActivity() {
     @Subscribe(threadMode = ThreadMode.MAIN, priority = 1)
     fun onLogout(logout: Logout) {
         appState.userData = Security.getUser()
+    }
+
+    override fun onBackPressed() {
+        if (!navigationViewModel.onBack()) {
+            super.onBackPressed()
+        }
     }
 
     override fun onStop() {

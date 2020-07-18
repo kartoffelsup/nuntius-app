@@ -31,28 +31,16 @@ object UserService {
             SuccessfulLogin.serializer()
         )
 
-        val loginResult: LoginResult = when (apiResult) {
-            is Success<*> -> apiResult.payload as SuccessfulLogin
-            is Failure -> FailedLogin(apiResult.reason)
-        }
-
-        when (loginResult) {
-            is SuccessfulLogin -> {
-                when (val contactsResult = getContacts(loginResult.token)) {
-                    is Success<*> -> {
-                        val contacts = contactsResult.payload as UserContacts
-                        val user = UserData(
-                            loginResult.token,
-                            loginResult.userId,
-                            loginResult.username,
-                            contacts
-                        )
-                        bus.post(Login(user))
-                    }
+        return when (apiResult) {
+            is Success<*> -> {
+                val successfulLogin = apiResult.payload as SuccessfulLogin
+                successfulLogin.also { login ->
+                    val userData = loadContacts(login)
+                    bus.post(Login(userData))
                 }
             }
+            is Failure -> FailedLogin(apiResult.reason)
         }
-        return loginResult
     }
 
     fun logout() {
@@ -67,10 +55,24 @@ object UserService {
             String.serializer(),
             credentials = credentials.token
         )
-        return when(result) {
+        return when (result) {
             is Success<*> -> (result.payload as String).right()
             is Failure -> result.reason.left()
         }
+    }
+
+    private suspend fun loadContacts(successfulLogin: SuccessfulLogin): UserData {
+        val contacts = when (val contactsResult = getContacts(successfulLogin.token)) {
+            is Success<*> -> contactsResult.payload as UserContacts
+
+            else -> UserContacts(listOf())
+        }
+        return UserData(
+            successfulLogin.token,
+            successfulLogin.userId,
+            successfulLogin.username,
+            contacts
+        )
     }
 
     private suspend fun getContacts(credentials: String): ApiResult {

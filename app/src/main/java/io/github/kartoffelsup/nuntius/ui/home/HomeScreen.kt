@@ -1,7 +1,8 @@
 package io.github.kartoffelsup.nuntius.ui.home
 
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.getValue
+import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
@@ -27,13 +28,13 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@Model
-class MessageHolder(var message: String)
+data class MessageHolder(val message: String)
 
 @Composable
-fun HomeScreen(appState: AppState, modifier: Modifier, messageHolder: MessageHolder) {
+fun HomeScreen(appState: AppState, innerPadding: InnerPadding) {
     val user = appState.userData
-    Column(modifier = modifier) {
+    val messageHolder by state {MessageHolder("")}
+    Column(modifier = Modifier.padding(innerPadding)) {
         Column {
             CenteredRow {
                 Text(
@@ -51,7 +52,7 @@ fun HomeScreen(appState: AppState, modifier: Modifier, messageHolder: MessageHol
                         GlobalScope.launch {
                             val result = MessageService.send(user.userId, "Hello There!", user)
                             withContext(Dispatchers.Main) {
-                                messageHolder.message = result.fold({ it }, { it.messageId })
+                                messageHolder.copy(message = result.fold({ it }, { it.messageId }))
                             }
                         }
                     }) {
@@ -81,8 +82,7 @@ fun HomeScreen(appState: AppState, modifier: Modifier, messageHolder: MessageHol
     }
 }
 
-@Model
-class ContactState(var open: Boolean)
+data class ContactState(var open: Boolean)
 
 @Preview
 @Composable
@@ -92,13 +92,12 @@ fun HomePreview() {
             AppState(
                 userData = UserData(
                     "",
-                    "marvin",
-                    "Marvin1",
+                    "nobody",
+                    "Nobody1",
                     UserContacts(listOf())
                 )
             ),
-            Modifier,
-            MessageHolder("hello there")
+            InnerPadding()
         )
     }
 }

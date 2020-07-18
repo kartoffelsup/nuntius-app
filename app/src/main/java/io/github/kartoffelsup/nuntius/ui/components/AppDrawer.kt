@@ -2,14 +2,16 @@ package io.github.kartoffelsup.nuntius.ui.components
 
 import androidx.annotation.DrawableRes
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.layout.*
-import androidx.ui.layout.RowScope.gravity
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.material.TextButton
@@ -20,20 +22,22 @@ import androidx.ui.unit.dp
 import io.github.kartoffelsup.nuntius.R
 import io.github.kartoffelsup.nuntius.data.user.UserService
 import io.github.kartoffelsup.nuntius.ui.AppState
+import io.github.kartoffelsup.nuntius.ui.NavigationViewModel
 import io.github.kartoffelsup.nuntius.ui.Screen
-import io.github.kartoffelsup.nuntius.ui.navigateTo
 import io.github.kartoffelsup.nuntius.ui.user.ContactsView
 
-@Model
 class NuntiusDrawerState(
-    var displayingContacts: Boolean = false
-)
+    displayingContacts: Boolean = false
+) {
+    var displayingContacts by mutableStateOf(displayingContacts)
+}
 
 @Composable
 fun AppDrawer(
     currentScreen: Screen,
     appState: AppState,
-    closeDrawer: () -> Unit
+    closeDrawer: () -> Unit,
+    navigationViewModel: NavigationViewModel
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         DrawerButton(
@@ -41,7 +45,7 @@ fun AppDrawer(
             label = "Home",
             isSelected = currentScreen == Screen.Home
         ) {
-            navigateTo(Screen.Home)
+            navigationViewModel.navigateTo(Screen.Home)
             closeDrawer()
         }
 
@@ -51,7 +55,7 @@ fun AppDrawer(
                 label = stringResource(R.string.common_signin_button_text),
                 isSelected = currentScreen == Screen.Login
             ) {
-                navigateTo(Screen.Login)
+                navigationViewModel.navigateTo(Screen.Login)
                 closeDrawer()
             }
         } else {
@@ -60,7 +64,7 @@ fun AppDrawer(
                 label = stringResource(R.string.messages_label),
                 isSelected = currentScreen == Screen.Messages
             ) {
-                navigateTo(Screen.Messages)
+                navigationViewModel.navigateTo(Screen.Messages)
                 closeDrawer()
             }
             DrawerButton(
@@ -71,7 +75,7 @@ fun AppDrawer(
                 appState.appDrawerState.displayingContacts = !appState.appDrawerState.displayingContacts
             }
             if (appState.appDrawerState.displayingContacts) {
-                ContactsView(appState = appState)
+                ContactsView(appState = appState, navigationViewModel = navigationViewModel)
             }
             DrawerButton(
                 icon = R.drawable.ic_outline_remove_circle_outline_24,
@@ -79,7 +83,7 @@ fun AppDrawer(
                 isSelected = currentScreen == Screen.Login
             ) {
                 UserService.logout()
-                navigateTo(Screen.Login)
+                navigationViewModel.navigateTo(Screen.Login)
                 closeDrawer()
             }
         }
@@ -140,6 +144,7 @@ fun AppdrawerPreview() {
     AppDrawer(
         currentScreen = Screen.Home,
         closeDrawer = {},
-        appState = AppState()
+        appState = AppState(),
+        navigationViewModel = NavigationViewModel(SavedStateHandle())
     )
 }

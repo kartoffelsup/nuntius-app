@@ -8,4 +8,6 @@
     <string name="button_text_send">Abschicken</string>
     <string name="contacts">Kontakte</string>
     <string name="message_contact">%1$s eine Nachricht schreiben</string>
+    <string name="server_connect_error">Keine Verbindung zum Server möglich.</string>
+    <string name="internal_error" >Ein interner Fehler ist aufgetreten.</string>
 </resources>

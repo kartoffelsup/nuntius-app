@@ -1,67 +1,71 @@
-
 package io.github.kartoffelsup.nuntius.ui.user
 
-import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.*
+import androidx.lifecycle.SavedStateHandle
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.currentTextStyle
 import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.Column
+import androidx.ui.layout.InnerPadding
+import androidx.ui.layout.padding
 import androidx.ui.material.MaterialTheme
+import androidx.ui.res.stringResource
 import androidx.ui.text.style.TextAlign
 import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
+import io.github.kartoffelsup.nuntius.R
 import io.github.kartoffelsup.nuntius.api.user.result.FailedLogin
 import io.github.kartoffelsup.nuntius.api.user.result.LoginResult
 import io.github.kartoffelsup.nuntius.api.user.result.SuccessfulLogin
 import io.github.kartoffelsup.nuntius.data.user.UserService
 import io.github.kartoffelsup.nuntius.ui.AppState
-import io.github.kartoffelsup.nuntius.ui.components.CenteredRow
+import io.github.kartoffelsup.nuntius.ui.NavigationViewModel
 import io.github.kartoffelsup.nuntius.ui.Screen
-import io.github.kartoffelsup.nuntius.ui.navigateTo
+import io.github.kartoffelsup.nuntius.ui.components.CenteredRow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.IOException
+import java.net.ConnectException
 
-@Model
-class LoginError(
-    var text: String = ""
+data class LoginError(
+    val text: String = ""
 )
 
 object Underline : Shape {
-    override fun createOutline(
-        size: PxSize,
-        density: Density
-    ): Outline {
+    override fun createOutline(size: Size, density: Density): Outline {
         return Outline.Rectangle(
             Rect(
                 0f,
-                size.height.value - density.density,
-                size.width.value,
-                size.height.value
+                size.height - density.density,
+                size.width,
+                size.height
             )
         )
     }
 }
 
 @Composable
-fun UserLoginScreen(appState: AppState, modifier: Modifier) {
+fun UserLoginScreen(
+    appState: AppState,
+    innerPadding: InnerPadding,
+    navigationViewModel: NavigationViewModel
+) {
     appState.userData?.let {
-        navigateTo(Screen.Home)
+        navigationViewModel.navigateTo(Screen.Home)
     }
 
-    val loginError = LoginError("")
+    var loginError by state { LoginError("") }
 
     val emailFieldState =
         FieldState(
             id = "emailField",
-            value = TextFieldValue(""),
+            value = androidx.ui.input.TextFieldValue(""),
             validate = { value ->
                 when {
                     value.isEmpty() -> ValidationResult.Invalid("This field is required.")
@@ -73,7 +77,7 @@ fun UserLoginScreen(appState: AppState, modifier: Modifier) {
     val passwordFieldState =
         FieldState(
             id = "passwordField",
-            value = TextFieldValue(""),
+            value = androidx.ui.input.TextFieldValue(""),
             validate = { value ->
                 when {
                     value.isEmpty() -> ValidationResult.Invalid("This field is required.")
@@ -81,8 +85,9 @@ fun UserLoginScreen(appState: AppState, modifier: Modifier) {
                     else -> ValidationResult.Valid
                 }
             })
-
-    val formState =
+    val serverConnectMessage = stringResource(R.string.server_connect_error)
+    val internalError = stringResource(R.string.internal_error)
+    val formState: LoginFormState = remember {
         LoginFormState(
             emailFieldState = emailFieldState,
             passwordFieldState = passwordFieldState
@@ -91,20 +96,33 @@ fun UserLoginScreen(appState: AppState, modifier: Modifier) {
             val pw = passwordFieldState.value
 
             GlobalScope.launch {
-                val result: LoginResult = UserService.login(mail.text, pw.text)
+                val result: LoginResult = try {
+                    UserService.login(mail.text, pw.text)
+                } catch (ioex: IOException) {
+                    if (ioex is ConnectException) {
+                        FailedLogin(serverConnectMessage)
+                    } else {
+                        println(ioex)
+                        FailedLogin(internalError)
+                    }
+                }
+
                 withContext(Dispatchers.Main) {
                     when (result) {
                         is SuccessfulLogin -> {
-                            navigateTo(Screen.Home)
+                            navigationViewModel.navigateTo(Screen.Home)
                         }
-                        is FailedLogin -> loginError.text =
-                            "Login failed: ${result.message}"
+                        is FailedLogin -> {
+                            loginError =
+                                loginError.copy(text = "Login failed: ${result.message}")
+                        }
                     }
                 }
             }
         }
+    }
 
-    Column(modifier = modifier) {
+    Column(modifier = Modifier.padding(innerPadding)) {
         LoginForm(formState = formState)
         CenteredRow {
             if (loginError.text.isNotEmpty()) {
@@ -123,5 +141,5 @@ fun UserLoginScreen(appState: AppState, modifier: Modifier) {
 @Preview
 @Composable
 fun LoginPreview() {
-    UserLoginScreen(AppState(), Modifier)
+    UserLoginScreen(AppState(), InnerPadding(), NavigationViewModel(SavedStateHandle()))
 }

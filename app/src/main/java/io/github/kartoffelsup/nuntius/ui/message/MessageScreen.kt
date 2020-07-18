@@ -1,11 +1,17 @@
 package io.github.kartoffelsup.nuntius.ui.message
 
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.*
+import androidx.ui.foundation.Icon
+import androidx.ui.foundation.Text
+import androidx.ui.foundation.TextField
+import androidx.ui.foundation.currentTextStyle
 import androidx.ui.graphics.Color
+import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.*
 import androidx.ui.material.Divider
 import androidx.ui.res.vectorResource
@@ -24,18 +30,23 @@ sealed class Message {
 data class UserMessage(override val text: String) : Message()
 data class ConversationPartnerMessage(override val text: String) : Message()
 
-@Model
 class MessageFieldState(
-    var initial: Boolean = true,
-    var value: TextFieldValue = TextFieldValue("")
-)
+    initial: Boolean = true,
+    value: TextFieldValue = TextFieldValue("")
+) {
+   var initial by mutableStateOf(initial)
+   var value by mutableStateOf(value)
+}
 
-@Model
 class MessageScreenState(
-    var currentConversationPartner: UserContact? = null,
-    val messages: List<Message> = listOf(),
-    val messageFieldState: MessageFieldState = MessageFieldState()
-)
+    currentConversationPartner: UserContact? = null,
+    messages: List<Message> = listOf(),
+    messageFieldState: MessageFieldState = MessageFieldState()
+) {
+    var currentConversationPartner by mutableStateOf(currentConversationPartner)
+    var messages by mutableStateOf(messages)
+    var messageFieldState by mutableStateOf(messageFieldState)
+}
 
 @Composable
 fun MessageScreen(state: MessageScreenState) {
@@ -113,7 +124,7 @@ fun MessageScreen(state: MessageScreenState) {
 fun MessageScreenPreview() {
     MessageScreen(
         MessageScreenState(
-            UserContact("id", "Michelle"),
+            UserContact("id", "Nobody2"),
             listOf(
                 UserMessage("Hi"),
                 ConversationPartnerMessage("Hi"),

@@ -19,4 +19,4 @@ val lightThemeColors = lightColorPalette(
     onError = Color.White
 )
 
-val darksThemeColors = darkColorPalette()
+val darkThemeColors = darkColorPalette()

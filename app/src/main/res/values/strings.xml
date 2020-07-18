@@ -7,4 +7,6 @@
     <string name="button_text_send">Send</string>
     <string name="contacts">Contacts</string>
     <string name="message_contact">Message %1$s</string>
+    <string name="server_connect_error">Unable to connect to the server.</string>
+    <string name="internal_error" >Encountered internal error.</string>
 </resources>

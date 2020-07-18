@@ -22,7 +22,7 @@ fun NuntiusPopup(
     if (open) {
         DropdownPopup(dropDownAlignment = DropDownAlignment.Start) {
             Surface(color = color) {
-                Column() {
+                Column {
                     children()
                 }
             }
