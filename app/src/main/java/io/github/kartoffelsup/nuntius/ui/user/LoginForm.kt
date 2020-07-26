@@ -200,7 +200,7 @@ private fun FormField(
                     keyboardType = keyboardType,
                     imeAction = imeAction,
                     onImeActionPerformed = onImeActionPerformed,
-                    onFocusChange = {
+                    onFocusChanged = {
                         fieldState.focused = it
                     },
                     onValueChange = { newValue ->
