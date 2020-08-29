@@ -1,20 +1,18 @@
 package io.github.kartoffelsup.nuntius.ui.home
 
-import androidx.compose.Composable
-import androidx.compose.getValue
-import androidx.compose.state
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.currentTextStyle
-import androidx.ui.layout.*
-import androidx.ui.material.Button
-import androidx.ui.material.MaterialTheme
-import androidx.ui.res.stringResource
-import androidx.ui.text.style.TextAlign
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.currentTextStyle
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.ui.tooling.preview.Preview
-import androidx.ui.unit.dp
-import androidx.ui.unit.sp
 import io.github.kartoffelsup.nuntius.R
 import io.github.kartoffelsup.nuntius.api.user.result.UserContacts
 import io.github.kartoffelsup.nuntius.data.message.MessageService
@@ -28,12 +26,12 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-data class MessageHolder(val message: String)
+data class MessageHolder(val message: String = "")
 
 @Composable
 fun HomeScreen(appState: AppState, innerPadding: InnerPadding) {
     val user = appState.userData
-    val messageHolder by state {MessageHolder("")}
+    var messageHolder by remember { mutableStateOf(MessageHolder()) }
     Column(modifier = Modifier.padding(innerPadding)) {
         Column {
             CenteredRow {
@@ -52,7 +50,7 @@ fun HomeScreen(appState: AppState, innerPadding: InnerPadding) {
                         GlobalScope.launch {
                             val result = MessageService.send(user.userId, "Hello There!", user)
                             withContext(Dispatchers.Main) {
-                                messageHolder.copy(message = result.fold({ it }, { it.messageId }))
+                               messageHolder = messageHolder.copy(message = result.fold({ it }, { it.messageId }))
                             }
                         }
                     }) {
@@ -67,9 +65,10 @@ fun HomeScreen(appState: AppState, innerPadding: InnerPadding) {
         }
 
         if (user != null) {
-            Column(Modifier.fillMaxSize() + Modifier.wrapContentSize(Alignment.Center)) {
+            Column(Modifier.fillMaxSize().then(Modifier.wrapContentSize(Alignment.Center))) {
                 Text(
-                    modifier = Modifier.fillMaxWidth() + Modifier.wrapContentSize(Alignment.Center),
+                    modifier = Modifier.fillMaxWidth()
+                        .then(Modifier.wrapContentSize(Alignment.Center)),
                     text = "User",
                     style = currentTextStyle()
                         .copy(fontSize = 24.sp, textAlign = TextAlign.Center)

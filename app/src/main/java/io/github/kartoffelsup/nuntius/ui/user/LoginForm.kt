@@ -1,24 +1,28 @@
 package io.github.kartoffelsup.nuntius.ui.user
 
-import androidx.compose.Composable
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.setValue
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.*
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.vector.VectorAsset
-import androidx.ui.input.*
-import androidx.ui.input.TextFieldValue
-import androidx.ui.layout.*
-import androidx.ui.material.Button
-import androidx.ui.material.Divider
-import androidx.ui.material.MaterialTheme
-import androidx.ui.res.stringResource
-import androidx.ui.res.vectorResource
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
+import androidx.compose.material.Divider
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focusObserver
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.VectorAsset
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.SoftwareKeyboardController
+import androidx.compose.ui.text.input.*
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import io.github.kartoffelsup.nuntius.R
 import io.github.kartoffelsup.nuntius.ui.components.NuntiusPopup
 
@@ -34,7 +38,7 @@ class LoginFormState(
         emailFieldState,
         passwordFieldState
     ),
-    val onSubmit:  () -> Unit
+    val onSubmit: () -> Unit
 )
 
 class ValidationState(
@@ -107,7 +111,7 @@ fun EmailFormField(formState: LoginFormState) {
         vectorImage = vectorResource(id = R.drawable.ic_outline_mail_outline_24),
         keyboardType = KeyboardType.Email,
         imeAction = ImeAction.Next,
-        onImeActionPerformed = { action ->
+        onImeActionPerformed = { action, keyboard ->
             if (action == ImeAction.Next) {
                 // TODO request focus for password field via modifier?!
             }
@@ -123,7 +127,7 @@ fun PasswordFormField(formState: LoginFormState, onSubmit: () -> Unit) {
         visualTransformation = PasswordVisualTransformation(),
         vectorImage = vectorResource(id = R.drawable.ic_outline_security_24),
         imeAction = ImeAction.Done,
-        onImeActionPerformed = { action ->
+        onImeActionPerformed = { action, keyboard ->
             if (action == ImeAction.Done) {
                 onSubmit()
             }
@@ -155,12 +159,13 @@ fun SubmitButton(
             }
         },
         enabled = state.enabled,
-        border = Border(Dp.Hairline, Color.Black)
+        border = BorderStroke(Dp.Hairline, Color.Black)
     ) {
         children()
     }
 }
 
+@OptIn(ExperimentalFocus::class)
 @Composable
 private fun FormField(
     name: String,
@@ -169,7 +174,7 @@ private fun FormField(
     vectorImage: VectorAsset? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
-    onImeActionPerformed: (ImeAction) -> Unit = {}
+    onImeActionPerformed: (ImeAction, SoftwareKeyboardController?) -> Unit = { _, _ -> }
 ) {
     val colors = MaterialTheme.colors
     val borderColor = when {
@@ -192,25 +197,20 @@ private fun FormField(
             Row {
                 TextField(
                     value = fieldState.value,
+                    label = {},
                     modifier = Modifier.weight(14f)
-                        .drawBorder(
-                            Border(2.dp, borderColor),
-                            Underline
-                        ),
+                        .border(BorderStroke(2.dp, borderColor))
+                        .focusObserver { fieldState.focused = it == FocusState.Active },
                     keyboardType = keyboardType,
                     imeAction = imeAction,
                     onImeActionPerformed = onImeActionPerformed,
-                    onFocusChanged = {
-                        fieldState.focused = it
-                    },
                     onValueChange = { newValue ->
                         fieldState.touched = true
                         val validationResult = fieldState.validate(newValue.text)
                         fieldState.validationState.valid =
                             validationResult == ValidationResult.Valid
                         fieldState.validationState.errorMessage =
-                            validationResult.takeIf { it != ValidationResult.Valid }
-                                ?.let { (it as ValidationResult.Invalid).reason }
+                            validationResult.let { (it as? ValidationResult.Invalid)?.reason }
                         fieldState.value = newValue
                     },
                     visualTransformation = visualTransformation ?: VisualTransformation.None
@@ -226,10 +226,10 @@ private fun FormField(
 
                 val icon = @Composable {
                     Icon(
-                        modifier = Modifier.gravity(Alignment.CenterVertically) +
-                                Modifier.weight(2f) +
-                                Modifier.padding(2.dp) +
-                                Modifier.preferredSizeIn(maxWidth = 32.dp, maxHeight = 32.dp),
+                        modifier = Modifier.gravity(Alignment.CenterVertically)
+                            .then(Modifier.weight(2f))
+                            .then(Modifier.padding(2.dp))
+                            .then(Modifier.preferredSizeIn(maxWidth = 32.dp, maxHeight = 32.dp)),
                         asset = vectorResource(id = R.drawable.ic_baseline_error_outline_24),
                         tint = iconColor
                     )

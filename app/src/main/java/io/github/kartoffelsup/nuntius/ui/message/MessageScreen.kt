@@ -1,22 +1,24 @@
 package io.github.kartoffelsup.nuntius.ui.message
 
-import androidx.compose.Composable
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.setValue
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.TextField
-import androidx.ui.foundation.currentTextStyle
-import androidx.ui.graphics.Color
-import androidx.ui.input.TextFieldValue
-import androidx.ui.layout.*
-import androidx.ui.material.Divider
-import androidx.ui.res.vectorResource
+import androidx.compose.foundation.Icon
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.currentTextStyle
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Divider
+import androidx.compose.material.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focusObserver
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import androidx.ui.tooling.preview.Preview
-import androidx.ui.unit.dp
 import io.github.kartoffelsup.nuntius.R
 import io.github.kartoffelsup.nuntius.api.user.result.UserContact
 import io.github.kartoffelsup.nuntius.ui.components.CenteredRow
@@ -48,13 +50,14 @@ class MessageScreenState(
     var messageFieldState by mutableStateOf(messageFieldState)
 }
 
+@OptIn(InternalLayoutApi::class, ExperimentalFocus::class)
 @Composable
 fun MessageScreen(state: MessageScreenState) {
     Column {
         Text(text = "Chatting with: ${state.currentConversationPartner?.username}")
     }
     Column(
-        modifier = Modifier.fillMaxSize() + Modifier.padding(5.dp),
+        modifier = Modifier.fillMaxSize().then(Modifier.padding(5.dp)),
         verticalArrangement = Arrangement.Bottom
     ) {
         Column {
@@ -92,16 +95,16 @@ fun MessageScreen(state: MessageScreenState) {
             modifier = Modifier.gravity(Alignment.CenterHorizontally)
         ) {
             TextField(
-                modifier = Modifier.padding(5.dp) + Modifier.weight(85f),
+                modifier = Modifier.padding(5.dp).weight(85f).focusObserver {
+                    state.messageFieldState.initial = false
+                },
                 value = if (state.messageFieldState.initial) {
                     TextFieldValue("Enter message here...")
                 } else {
                     state.messageFieldState.value
                 },
                 textStyle = currentTextStyle(),
-                onFocusChanged = {
-                    state.messageFieldState.initial = false
-                },
+                label = {},
                 onValueChange = { text -> state.messageFieldState.value = text }
             )
             SubmitButton(

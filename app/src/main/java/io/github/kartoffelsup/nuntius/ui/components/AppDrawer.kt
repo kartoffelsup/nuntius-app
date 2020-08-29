@@ -1,24 +1,25 @@
 package io.github.kartoffelsup.nuntius.ui.components
 
 import androidx.annotation.DrawableRes
-import androidx.compose.Composable
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.setValue
+import androidx.compose.foundation.Icon
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.shape.corner.RoundedCornerShape
-import androidx.ui.layout.*
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.Surface
-import androidx.ui.material.TextButton
-import androidx.ui.res.stringResource
-import androidx.ui.res.vectorResource
 import androidx.ui.tooling.preview.Preview
-import androidx.ui.unit.dp
 import io.github.kartoffelsup.nuntius.R
 import io.github.kartoffelsup.nuntius.data.user.UserService
 import io.github.kartoffelsup.nuntius.ui.AppState
@@ -110,9 +111,9 @@ private fun DrawerButton(
         colors.surface
     }
 
-    val surfaceModifier = modifier +
-            Modifier.padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 0.dp) +
-            Modifier.fillMaxWidth()
+    val surfaceModifier =
+        modifier.then(Modifier.padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 0.dp))
+            .then(Modifier.fillMaxWidth())
     Surface(
         modifier = surfaceModifier,
         color = backgroundColor,
@@ -138,6 +139,7 @@ private fun DrawerButton(
     }
 }
 
+@ExperimentalMaterialApi
 @Preview
 @Composable
 fun AppdrawerPreview() {

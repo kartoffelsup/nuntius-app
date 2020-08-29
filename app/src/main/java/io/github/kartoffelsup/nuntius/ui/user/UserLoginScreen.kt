@@ -1,22 +1,25 @@
 package io.github.kartoffelsup.nuntius.ui.user
 
-import androidx.compose.*
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.currentTextStyle
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.InnerPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Density
 import androidx.lifecycle.SavedStateHandle
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.currentTextStyle
-import androidx.ui.geometry.Rect
-import androidx.ui.geometry.Size
-import androidx.ui.graphics.Outline
-import androidx.ui.graphics.Shape
-import androidx.ui.layout.Column
-import androidx.ui.layout.InnerPadding
-import androidx.ui.layout.padding
-import androidx.ui.material.MaterialTheme
-import androidx.ui.res.stringResource
-import androidx.ui.text.style.TextAlign
 import androidx.ui.tooling.preview.Preview
-import androidx.ui.unit.Density
 import io.github.kartoffelsup.nuntius.R
 import io.github.kartoffelsup.nuntius.api.user.result.FailedLogin
 import io.github.kartoffelsup.nuntius.api.user.result.LoginResult
@@ -50,6 +53,7 @@ object Underline : Shape {
     }
 }
 
+@OptIn(ExperimentalFocus::class)
 @Composable
 fun UserLoginScreen(
     appState: AppState,
@@ -60,12 +64,12 @@ fun UserLoginScreen(
         navigationViewModel.navigateTo(Screen.Home)
     }
 
-    var loginError by state { LoginError("") }
+    var loginError by remember { mutableStateOf(LoginError("")) }
 
     val emailFieldState =
         FieldState(
             id = "emailField",
-            value = androidx.ui.input.TextFieldValue(""),
+            value = TextFieldValue(""),
             validate = { value ->
                 when {
                     value.isEmpty() -> ValidationResult.Invalid("This field is required.")
@@ -77,7 +81,7 @@ fun UserLoginScreen(
     val passwordFieldState =
         FieldState(
             id = "passwordField",
-            value = androidx.ui.input.TextFieldValue(""),
+            value = TextFieldValue(""),
             validate = { value ->
                 when {
                     value.isEmpty() -> ValidationResult.Invalid("This field is required.")
@@ -94,6 +98,8 @@ fun UserLoginScreen(
         ) {
             val mail = emailFieldState.value
             val pw = passwordFieldState.value
+            // Reset errors on submit
+            loginError = loginError.copy(text = "")
 
             GlobalScope.launch {
                 val result: LoginResult = try {
@@ -138,6 +144,7 @@ fun UserLoginScreen(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
 fun LoginPreview() {

@@ -5,10 +5,10 @@ package io.github.kartoffelsup.nuntius.ui
 
 import android.os.Bundle
 import androidx.annotation.MainThread
-import androidx.compose.MutableState
-import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.setValue
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.os.bundleOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

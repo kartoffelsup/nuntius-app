@@ -38,9 +38,9 @@ object Security {
         EventBus.getDefault().unregister(this)
     }
 
-    @Suppress("UNUSED_PARAMETER")
     @Subscribe(threadMode = ThreadMode.MAIN, priority = 99)
     fun clearUser(event: Logout) {
+        println(event)
         sharedPreferences.edit()
             .remove(USER_ALIAS)
             .apply()

@@ -1,18 +1,22 @@
 package io.github.kartoffelsup.nuntius.ui
 
 import androidx.annotation.StringRes
-import androidx.compose.*
+import androidx.compose.animation.core.DefaultAnimationClock
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Icon
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.*
-import androidx.ui.graphics.Color
-import androidx.ui.layout.*
-import androidx.ui.material.*
-import androidx.ui.res.stringResource
-import androidx.ui.res.vectorResource
 import androidx.ui.tooling.preview.Preview
-import androidx.ui.unit.dp
 import io.github.kartoffelsup.nuntius.R
 import io.github.kartoffelsup.nuntius.api.user.result.UserContact
 import io.github.kartoffelsup.nuntius.api.user.result.UserContacts
@@ -24,9 +28,14 @@ import io.github.kartoffelsup.nuntius.ui.message.MessageScreen
 import io.github.kartoffelsup.nuntius.ui.message.MessageScreenState
 import io.github.kartoffelsup.nuntius.ui.user.UserLoginScreen
 
-class AppState(
+class AppState @OptIn(ExperimentalMaterialApi::class) constructor(
     userData: UserData? = null,
-    scaffoldState: ScaffoldState = ScaffoldState(drawerState = DrawerState.Closed),
+    scaffoldState: ScaffoldState = ScaffoldState(
+        drawerState = DrawerState(
+            DrawerValue.Closed,
+            DefaultAnimationClock()
+        ), SnackbarHostState()
+    ),
     appDrawerState: NuntiusDrawerState = NuntiusDrawerState(),
     messageScreenState: MessageScreenState = MessageScreenState(),
     @StringRes
@@ -50,7 +59,7 @@ fun NutriusApp(appState: AppState, navigationViewModel: NavigationViewModel) {
                         currentScreen = navigationViewModel.currentScreen,
                         appState = appState,
                         closeDrawer = {
-                            appState.scaffoldState.drawerState = DrawerState.Closed
+                            appState.scaffoldState.drawerState.close()
                         },
                         navigationViewModel = navigationViewModel
                     )
@@ -65,12 +74,14 @@ fun NutriusApp(appState: AppState, navigationViewModel: NavigationViewModel) {
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Box(Modifier.clickable(onClick = {
-                                appState.scaffoldState.drawerState = DrawerState.Opened
+                                appState.scaffoldState.drawerState.open()
                             }), children = {
                                 Icon(
                                     asset = vectorResource(R.drawable.ic_outline_menu_24),
-                                    modifier = Modifier.fillMaxHeight() + Modifier.wrapContentSize(
-                                        Alignment.CenterStart
+                                    modifier = Modifier.fillMaxHeight().then(
+                                        Modifier.wrapContentSize(
+                                            Alignment.CenterStart
+                                        )
                                     ),
                                     tint = Color.White
                                 )
@@ -110,25 +121,27 @@ private fun AppContent(
 @Preview
 @Composable
 fun NutriusAppPreview() {
-    val state by state {
-        AppState(
-            userData = UserData(
-                "",
-                "nobody",
-                "Nobody1",
-                UserContacts(
-                    listOf(
-                        UserContact("id", "Contact1"),
-                        UserContact("id", "Contact2"),
-                        UserContact("id", "Contact3"),
-                        UserContact("id", "Contact4"),
-                        UserContact("id", "Contact5"),
-                        UserContact("id", "Contact1"),
-                        UserContact("id", "Contact2"),
-                        UserContact("id", "Contact3"),
-                        UserContact("id", "Contact4"),
-                        UserContact("id", "Contact5"),
-                        UserContact("id", "Contact6")
+    val state by remember {
+        mutableStateOf(
+            AppState(
+                userData = UserData(
+                    "",
+                    "nobody",
+                    "Nobody1",
+                    UserContacts(
+                        listOf(
+                            UserContact("id", "Contact1"),
+                            UserContact("id", "Contact2"),
+                            UserContact("id", "Contact3"),
+                            UserContact("id", "Contact4"),
+                            UserContact("id", "Contact5"),
+                            UserContact("id", "Contact1"),
+                            UserContact("id", "Contact2"),
+                            UserContact("id", "Contact3"),
+                            UserContact("id", "Contact4"),
+                            UserContact("id", "Contact5"),
+                            UserContact("id", "Contact6")
+                        )
                     )
                 )
             )

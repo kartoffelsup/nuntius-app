@@ -1,10 +1,10 @@
 package io.github.kartoffelsup.nuntius.ui
 
-import androidx.ui.graphics.Color
-import androidx.ui.material.darkColorPalette
-import androidx.ui.material.lightColorPalette
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
 
-val lightThemeColors = lightColorPalette(
+val lightThemeColors = lightColors(
     primary = Color(0xFF0087EE),
     primaryVariant = Color(0xFF007AB3),
     secondary = Color(0xFF43DA03),
@@ -19,4 +19,4 @@ val lightThemeColors = lightColorPalette(
     onError = Color.White
 )
 
-val darkThemeColors = darkColorPalette()
+val darkThemeColors = darkColors()
