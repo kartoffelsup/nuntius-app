@@ -1,25 +1,20 @@
 package io.github.kartoffelsup.nuntius.ui.components
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Icon
-import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.TextButton
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
-import androidx.ui.tooling.preview.Preview
 import io.github.kartoffelsup.nuntius.R
 import io.github.kartoffelsup.nuntius.data.user.UserService
 import io.github.kartoffelsup.nuntius.ui.AppState
@@ -53,7 +48,7 @@ fun AppDrawer(
         if (appState.userData == null) {
             DrawerButton(
                 icon = R.drawable.ic_outline_person_outline_24,
-                label = stringResource(R.string.common_signin_button_text),
+                label = stringResource(R.string.button_text_signin),
                 isSelected = currentScreen == Screen.Login
             ) {
                 navigationViewModel.navigateTo(Screen.Login)
@@ -122,12 +117,13 @@ private fun DrawerButton(
         TextButton(onClick = action, modifier = Modifier.fillMaxWidth()) {
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
                 Icon(
-                    modifier = Modifier.gravity(Alignment.CenterVertically)
-                        .preferredSize(24.dp),
-                    asset = vectorResource(icon),
-                    tint = textIconColor
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                        .size(24.dp),
+                    painter = painterResource(icon),
+                    tint = textIconColor,
+                    contentDescription = null
                 )
-                Spacer(Modifier.preferredWidth(16.dp))
+                Spacer(Modifier.width(16.dp))
                 Text(
                     text = label,
                     style = (MaterialTheme.typography).body2.copy(

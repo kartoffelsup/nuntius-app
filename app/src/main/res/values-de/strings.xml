@@ -10,4 +10,5 @@
     <string name="message_contact">%1$s eine Nachricht schreiben</string>
     <string name="server_connect_error">Keine Verbindung zum Server möglich.</string>
     <string name="internal_error" >Ein interner Fehler ist aufgetreten.</string>
+    <string name="button_text_signin">Anmelden</string>
 </resources>

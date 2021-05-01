@@ -1,9 +1,9 @@
 package io.github.kartoffelsup.nuntius.ui
 
 import android.os.Bundle
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.ui.platform.setContent
 import io.github.kartoffelsup.nuntius.data.Login
 import io.github.kartoffelsup.nuntius.data.Logout
 import io.github.kartoffelsup.nuntius.data.Security

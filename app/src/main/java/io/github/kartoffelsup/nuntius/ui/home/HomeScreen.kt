@@ -1,18 +1,18 @@
 package io.github.kartoffelsup.nuntius.ui.home
 
-import androidx.compose.foundation.Text
-import androidx.compose.foundation.currentTextStyle
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.ui.tooling.preview.Preview
 import io.github.kartoffelsup.nuntius.R
 import io.github.kartoffelsup.nuntius.api.user.result.UserContacts
 import io.github.kartoffelsup.nuntius.data.message.MessageService
@@ -22,32 +22,32 @@ import io.github.kartoffelsup.nuntius.ui.AppState
 import io.github.kartoffelsup.nuntius.ui.components.CenteredRow
 import io.github.kartoffelsup.nuntius.ui.user.UserRow
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 data class MessageHolder(val message: String = "")
 
 @Composable
-fun HomeScreen(appState: AppState, innerPadding: InnerPadding) {
+fun HomeScreen(appState: AppState, padding: PaddingValues) {
+    val coroutineScope = rememberCoroutineScope()
     val user = appState.userData
     var messageHolder by remember { mutableStateOf(MessageHolder()) }
-    Column(modifier = Modifier.padding(innerPadding)) {
+    Column(modifier = Modifier.padding(padding)) {
         Column {
             CenteredRow {
                 Text(
                     text = "Welcome to nuntius",
-                    style = currentTextStyle().copy(
+                    style = TextStyle.Default.copy(
                         fontSize = 24.sp,
                         textAlign = TextAlign.Center
                     )
                 )
             }
-            Spacer(Modifier.preferredHeight(16.dp))
+            Spacer(Modifier.height(16.dp))
             if (user != null) {
                 CenteredRow {
                     Button(modifier = Modifier.padding(start = 5.dp, end = 5.dp), onClick = {
-                        GlobalScope.launch {
+                        coroutineScope.launch(Dispatchers.IO) {
                             val result = MessageService.send(user.userId, "Hello There!", user)
                             withContext(Dispatchers.Main) {
                                messageHolder = messageHolder.copy(message = result.fold({ it }, { it.messageId }))
@@ -70,7 +70,7 @@ fun HomeScreen(appState: AppState, innerPadding: InnerPadding) {
                     modifier = Modifier.fillMaxWidth()
                         .then(Modifier.wrapContentSize(Alignment.Center)),
                     text = "User",
-                    style = currentTextStyle()
+                    style = TextStyle.Default
                         .copy(fontSize = 24.sp, textAlign = TextAlign.Center)
                 )
                 CenteredRow {
@@ -96,7 +96,7 @@ fun HomePreview() {
                     UserContacts(listOf())
                 )
             ),
-            InnerPadding()
+            PaddingValues()
         )
     }
 }

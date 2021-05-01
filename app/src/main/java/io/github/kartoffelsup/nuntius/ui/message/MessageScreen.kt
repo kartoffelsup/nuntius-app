@@ -1,10 +1,9 @@
 package io.github.kartoffelsup.nuntius.ui.message
 
-import androidx.compose.foundation.Icon
-import androidx.compose.foundation.Text
-import androidx.compose.foundation.currentTextStyle
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Divider
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,13 +11,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.ExperimentalFocus
-import androidx.compose.ui.focusObserver
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.ui.tooling.preview.Preview
 import io.github.kartoffelsup.nuntius.R
 import io.github.kartoffelsup.nuntius.api.user.result.UserContact
 import io.github.kartoffelsup.nuntius.ui.components.CenteredRow
@@ -50,7 +49,6 @@ class MessageScreenState(
     var messageFieldState by mutableStateOf(messageFieldState)
 }
 
-@OptIn(InternalLayoutApi::class, ExperimentalFocus::class)
 @Composable
 fun MessageScreen(state: MessageScreenState) {
     Column {
@@ -92,18 +90,19 @@ fun MessageScreen(state: MessageScreenState) {
             modifier = Modifier.padding(5.dp)
         )
         CenteredRow(
-            modifier = Modifier.gravity(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
             TextField(
-                modifier = Modifier.padding(5.dp).weight(85f).focusObserver {
-                    state.messageFieldState.initial = false
+                modifier = Modifier.padding(5.dp).weight(85f).onFocusChanged {
+                    if (it == FocusState.Active) {
+                        state.messageFieldState.initial = false
+                    }
                 },
                 value = if (state.messageFieldState.initial) {
                     TextFieldValue("Enter message here...")
                 } else {
                     state.messageFieldState.value
                 },
-                textStyle = currentTextStyle(),
                 label = {},
                 onValueChange = { text -> state.messageFieldState.value = text }
             )
@@ -114,8 +113,9 @@ fun MessageScreen(state: MessageScreenState) {
                 modifier = Modifier.weight(15f)
             ) {
                 Icon(
-                    asset = vectorResource(R.drawable.ic_outline_navigation_24),
-                    modifier = Modifier.preferredSizeIn(minWidth = 16.dp, minHeight = 16.dp)
+                    painter = painterResource(R.drawable.ic_outline_navigation_24),
+                    modifier = Modifier.sizeIn(minWidth = 16.dp, minHeight = 16.dp),
+                    contentDescription = null
                 )
             }
         }

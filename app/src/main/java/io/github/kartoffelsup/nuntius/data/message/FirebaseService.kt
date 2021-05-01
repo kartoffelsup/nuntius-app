@@ -7,14 +7,16 @@ import io.github.kartoffelsup.nuntius.data.Security
 import io.github.kartoffelsup.nuntius.data.jsonx
 import io.github.kartoffelsup.nuntius.data.user.UserService
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.greenrobot.eventbus.EventBus
 
 class FirebaseService : FirebaseMessagingService() {
     override fun onNewToken(newToken: String) {
         super.onNewToken(newToken)
         Security.getUser()?.let { user ->
-            GlobalScope.launch {
+            runBlocking {
                 UserService.updateToken(newToken, user)
             }
         }
@@ -24,7 +26,7 @@ class FirebaseService : FirebaseMessagingService() {
         super.onMessageReceived(remoteMessage)
         val payload = remoteMessage.data["data"]
         val notification = payload?.let {
-            jsonx.parse(NuntiusNotificationDto.serializer(), it)
+            jsonx.decodeFromString(NuntiusNotificationDto.serializer(), it)
         }
         EventBus.getDefault().post(notification)
     }

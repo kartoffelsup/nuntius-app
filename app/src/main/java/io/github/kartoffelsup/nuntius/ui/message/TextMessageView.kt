@@ -1,23 +1,23 @@
 package io.github.kartoffelsup.nuntius.ui.message
 
-import androidx.compose.foundation.Text
-import androidx.compose.foundation.currentTextStyle
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.ui.tooling.preview.Preview
 
 
 @Composable
 fun TextMessageView(
     text: String,
+    modifier: Modifier = Modifier,
     bgColor: Color = Color.Blue,
-    textColor: Color = Color.White,
-    modifier: Modifier = Modifier
+    textColor: Color = Color.White
 ) {
     Surface(
         color = bgColor,
@@ -26,7 +26,7 @@ fun TextMessageView(
         Text(
             modifier = Modifier.padding(5.dp).then(modifier),
             text = text,
-            style = currentTextStyle().copy(color = textColor)
+            style = LocalTextStyle.current.copy(color = textColor)
         )
     }
 }

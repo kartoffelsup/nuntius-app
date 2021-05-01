@@ -1,25 +1,19 @@
 package io.github.kartoffelsup.nuntius.ui.user
 
-import androidx.compose.foundation.Text
-import androidx.compose.foundation.currentTextStyle
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.InnerPadding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.ExperimentalFocus
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Density
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.SavedStateHandle
-import androidx.ui.tooling.preview.Preview
 import io.github.kartoffelsup.nuntius.R
 import io.github.kartoffelsup.nuntius.api.user.result.FailedLogin
 import io.github.kartoffelsup.nuntius.api.user.result.LoginResult
@@ -40,26 +34,13 @@ data class LoginError(
     val text: String = ""
 )
 
-object Underline : Shape {
-    override fun createOutline(size: Size, density: Density): Outline {
-        return Outline.Rectangle(
-            Rect(
-                0f,
-                size.height - density.density,
-                size.width,
-                size.height
-            )
-        )
-    }
-}
-
-@OptIn(ExperimentalFocus::class)
 @Composable
 fun UserLoginScreen(
     appState: AppState,
-    innerPadding: InnerPadding,
+    innerPadding: PaddingValues,
     navigationViewModel: NavigationViewModel
 ) {
+    val coroutineScope = rememberCoroutineScope()
     appState.userData?.let {
         navigationViewModel.navigateTo(Screen.Home)
     }
@@ -101,15 +82,17 @@ fun UserLoginScreen(
             // Reset errors on submit
             loginError = loginError.copy(text = "")
 
-            GlobalScope.launch {
-                val result: LoginResult = try {
-                    UserService.login(mail.text, pw.text)
-                } catch (ioex: IOException) {
-                    if (ioex is ConnectException) {
-                        FailedLogin(serverConnectMessage)
-                    } else {
-                        println(ioex)
-                        FailedLogin(internalError)
+            coroutineScope.launch {
+                val result = withContext(Dispatchers.IO) {
+                    try {
+                        UserService.login(mail.text, pw.text)
+                    } catch (ioex: IOException) {
+                        if (ioex is ConnectException) {
+                            FailedLogin(serverConnectMessage)
+                        } else {
+                            println(ioex)
+                            FailedLogin(internalError)
+                        }
                     }
                 }
 
@@ -134,7 +117,7 @@ fun UserLoginScreen(
             if (loginError.text.isNotEmpty()) {
                 Text(
                     text = loginError.text,
-                    style = currentTextStyle().copy(
+                    style = LocalTextStyle.current.copy(
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colors.error
                     )
@@ -148,5 +131,5 @@ fun UserLoginScreen(
 @Preview
 @Composable
 fun LoginPreview() {
-    UserLoginScreen(AppState(), InnerPadding(), NavigationViewModel(SavedStateHandle()))
+    UserLoginScreen(AppState(), PaddingValues(), NavigationViewModel(SavedStateHandle()))
 }

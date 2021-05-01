@@ -7,10 +7,8 @@ import androidx.security.crypto.MasterKey
 import io.github.kartoffelsup.nuntius.api.user.result.UserContact
 import io.github.kartoffelsup.nuntius.api.user.result.UserContacts
 import io.github.kartoffelsup.nuntius.data.user.UserData
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.json
-import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -48,24 +46,24 @@ object Security {
 
     @Subscribe(threadMode = ThreadMode.MAIN, priority = 99)
     fun storeUser(event: Login) {
-        val contacts = jsonArray {
+        val contacts = buildJsonArray {
             event.userData.contacts.contacts.map {
-                +json {
-                    "userId" to it.userId
-                    "username" to it.username
-                }
+                add(buildJsonObject {
+                    put("userId", it.userId)
+                    put("username", it.username)
+                })
             }
         }
-        val userJson: JsonObject = json {
-            "token" to event.userData.token
-            "userId" to event.userData.userId
-            "username" to event.userData.username
-            "contacts" to contacts
+        val userJson: JsonObject = buildJsonObject {
+            put("token", event.userData.token)
+            put("userId", event.userData.userId)
+            put("username", event.userData.username)
+            put("contacts", contacts)
         }
         sharedPreferences.edit()
             .putString(
                 USER_ALIAS,
-                jsonx.stringify(JsonObject.serializer(), userJson)
+                jsonx.encodeToString(JsonObject.serializer(), userJson)
             )
             .apply()
     }
@@ -73,18 +71,20 @@ object Security {
     fun getUser(): UserData? {
         val storedData = sharedPreferences.getString(USER_ALIAS, null)
         return storedData?.let {
-            jsonx.parseJson(it)
-                .takeIf { json -> json is JsonObject }
-                ?.let { json: JsonElement -> json.jsonObject }
-                ?.let { json ->
-                    val token = json["token"]?.primitive?.content
-                    val userId = json["userId"]?.primitive?.content
-                    val username = json["username"]?.primitive?.content
+            jsonx.decodeFromString<JsonObject>(it)
+                .let { json: JsonElement -> json.jsonObject }
+                .let { json ->
+                    val token = json["token"]?.jsonPrimitive?.content
+                    val userId = json["userId"]?.jsonPrimitive?.content
+                    val username = json["username"]?.jsonPrimitive?.content
                     val contacts = json["contacts"]?.jsonArray?.let { cs ->
-                        cs.content.map { elem ->
-                            val id = elem.jsonObject.getPrimitive("userId").content
-                            val name = elem.jsonObject.getPrimitive("username").content
-                            UserContact(id, name)
+                        cs.mapNotNull { elem ->
+                            val id = elem.jsonObject.get("userId")?.jsonPrimitive?.content
+                            val name = elem.jsonObject.get("username")?.jsonPrimitive?.content
+                            if (id != null && name != null)
+                                UserContact(id, name)
+                            else
+                                null
                         }
                     } ?: emptyList()
                     if (token != null && userId != null && username != null) {
