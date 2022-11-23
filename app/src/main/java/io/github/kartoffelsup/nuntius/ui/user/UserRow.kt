@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kartoffelsup.nuntius.R
@@ -23,15 +24,15 @@ fun UserRow(
     Row {
         Icon(
             painter = painterResource(R.drawable.ic_outline_person_outline_24),
+            contentDescription = "outline_person",
             modifier = Modifier.size(20.dp, 20.dp)
                 .wrapContentSize(Alignment.Center),
-            tint = color,
-            contentDescription = null
+            tint = color
         )
         Text(
-            text = username
+            text = username,
+            style = TextStyle.Companion.Default
         )
-
     }
 }
 

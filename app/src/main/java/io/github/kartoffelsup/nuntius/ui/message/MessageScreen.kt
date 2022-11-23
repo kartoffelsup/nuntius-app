@@ -11,10 +11,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,8 +35,8 @@ class MessageFieldState(
     initial: Boolean = true,
     value: TextFieldValue = TextFieldValue("")
 ) {
-   var initial by mutableStateOf(initial)
-   var value by mutableStateOf(value)
+    var initial by mutableStateOf(initial)
+    var value by mutableStateOf(value)
 }
 
 class MessageScreenState(
@@ -55,7 +55,9 @@ fun MessageScreen(state: MessageScreenState) {
         Text(text = "Chatting with: ${state.currentConversationPartner?.username}")
     }
     Column(
-        modifier = Modifier.fillMaxSize().then(Modifier.padding(5.dp)),
+        modifier = Modifier
+            .fillMaxSize()
+            .then(Modifier.padding(5.dp)),
         verticalArrangement = Arrangement.Bottom
     ) {
         Column {
@@ -93,16 +95,18 @@ fun MessageScreen(state: MessageScreenState) {
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
             TextField(
-                modifier = Modifier.padding(5.dp).weight(85f).onFocusChanged {
-                    if (it == FocusState.Active) {
+                modifier = Modifier
+                    .padding(5.dp)
+                    .weight(85f)
+                    .onFocusChanged {
                         state.messageFieldState.initial = false
-                    }
-                },
+                    },
                 value = if (state.messageFieldState.initial) {
                     TextFieldValue("Enter message here...")
                 } else {
                     state.messageFieldState.value
                 },
+                textStyle = TextStyle.Default,
                 label = {},
                 onValueChange = { text -> state.messageFieldState.value = text }
             )
@@ -114,8 +118,8 @@ fun MessageScreen(state: MessageScreenState) {
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_outline_navigation_24),
-                    modifier = Modifier.sizeIn(minWidth = 16.dp, minHeight = 16.dp),
-                    contentDescription = null
+                    contentDescription = null,
+                    modifier = Modifier.sizeIn(minWidth = 16.dp, minHeight = 16.dp)
                 )
             }
         }

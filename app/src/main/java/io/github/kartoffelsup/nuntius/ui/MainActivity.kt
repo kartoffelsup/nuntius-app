@@ -1,12 +1,20 @@
 package io.github.kartoffelsup.nuntius.ui
 
 import android.os.Bundle
-import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.compose.setContent
+import com.google.firebase.iid.FirebaseInstanceIdReceiver
+import com.google.firebase.iid.internal.FirebaseInstanceIdInternal
+import com.google.firebase.installations.FirebaseInstallations
+import com.google.firebase.messaging.FirebaseMessagingService
 import io.github.kartoffelsup.nuntius.data.Login
 import io.github.kartoffelsup.nuntius.data.Logout
 import io.github.kartoffelsup.nuntius.data.Security
+import io.github.kartoffelsup.nuntius.data.user.UserService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -22,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         appState = AppState(Security.getUser())
 
         setContent {
-            NutriusApp(appState, navigationViewModel)
+            NuntiusApp(appState, navigationViewModel)
         }
     }
 

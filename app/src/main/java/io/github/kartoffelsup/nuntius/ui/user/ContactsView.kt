@@ -1,7 +1,10 @@
 package io.github.kartoffelsup.nuntius.ui.user
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -28,9 +31,10 @@ fun ContactsView(appState: AppState, navigationViewModel: NavigationViewModel) {
     if (appState.userData?.contacts?.contacts?.isNotEmpty() == true) {
         Column {
             Column(
-                modifier = Modifier.padding(5.dp).widthIn(min = 120.dp).heightIn(
-                    max = 200.dp
-                ).verticalScroll(rememberScrollState())
+                modifier = Modifier
+                    .padding(5.dp)
+                    .sizeIn(minWidth = 120.dp, maxHeight = 200.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
                 Column {
                     appState.userData?.contacts?.contacts?.forEach { contact ->

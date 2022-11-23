@@ -1,15 +1,15 @@
 package io.github.kartoffelsup.nuntius.ui.user
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,8 +24,8 @@ import io.github.kartoffelsup.nuntius.ui.NavigationViewModel
 import io.github.kartoffelsup.nuntius.ui.Screen
 import io.github.kartoffelsup.nuntius.ui.components.CenteredRow
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.ConnectException
@@ -40,12 +40,13 @@ fun UserLoginScreen(
     innerPadding: PaddingValues,
     navigationViewModel: NavigationViewModel
 ) {
-    val coroutineScope = rememberCoroutineScope()
     appState.userData?.let {
         navigationViewModel.navigateTo(Screen.Home)
     }
 
     var loginError by remember { mutableStateOf(LoginError("")) }
+
+    val coroutineScope = rememberCoroutineScope()
 
     val emailFieldState =
         FieldState(
@@ -83,8 +84,8 @@ fun UserLoginScreen(
             loginError = loginError.copy(text = "")
 
             coroutineScope.launch {
-                val result = withContext(Dispatchers.IO) {
-                    try {
+                val result: LoginResult = withContext(Dispatchers.IO) {
+                     try {
                         UserService.login(mail.text, pw.text)
                     } catch (ioex: IOException) {
                         if (ioex is ConnectException) {
@@ -117,7 +118,7 @@ fun UserLoginScreen(
             if (loginError.text.isNotEmpty()) {
                 Text(
                     text = loginError.text,
-                    style = LocalTextStyle.current.copy(
+                    style = TextStyle.Default.copy(
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colors.error
                     )
@@ -127,7 +128,6 @@ fun UserLoginScreen(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
 fun LoginPreview() {

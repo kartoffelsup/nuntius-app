@@ -7,7 +7,6 @@ import androidx.security.crypto.MasterKey
 import io.github.kartoffelsup.nuntius.api.user.result.UserContact
 import io.github.kartoffelsup.nuntius.api.user.result.UserContacts
 import io.github.kartoffelsup.nuntius.data.user.UserData
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -38,7 +37,6 @@ object Security {
 
     @Subscribe(threadMode = ThreadMode.MAIN, priority = 99)
     fun clearUser(event: Logout) {
-        println(event)
         sharedPreferences.edit()
             .remove(USER_ALIAS)
             .apply()
@@ -48,10 +46,10 @@ object Security {
     fun storeUser(event: Login) {
         val contacts = buildJsonArray {
             event.userData.contacts.contacts.map {
-                add(buildJsonObject {
-                    put("userId", it.userId)
-                    put("username", it.username)
-                })
+                addJsonObject {
+                    "userId" to it.userId
+                    "username" to it.username
+                }
             }
         }
         val userJson: JsonObject = buildJsonObject {
@@ -71,20 +69,18 @@ object Security {
     fun getUser(): UserData? {
         val storedData = sharedPreferences.getString(USER_ALIAS, null)
         return storedData?.let {
-            jsonx.decodeFromString<JsonObject>(it)
-                .let { json: JsonElement -> json.jsonObject }
-                .let { json ->
+            jsonx.parseToJsonElement(it)
+                .takeIf { json -> json is JsonObject }
+                ?.let { json: JsonElement -> json.jsonObject }
+                ?.let { json ->
                     val token = json["token"]?.jsonPrimitive?.content
                     val userId = json["userId"]?.jsonPrimitive?.content
                     val username = json["username"]?.jsonPrimitive?.content
                     val contacts = json["contacts"]?.jsonArray?.let { cs ->
-                        cs.mapNotNull { elem ->
-                            val id = elem.jsonObject.get("userId")?.jsonPrimitive?.content
-                            val name = elem.jsonObject.get("username")?.jsonPrimitive?.content
-                            if (id != null && name != null)
-                                UserContact(id, name)
-                            else
-                                null
+                        cs.map { elem ->
+                            val id = elem.jsonObject["userId"]?.jsonPrimitive?.content!!
+                            val name = elem.jsonObject["username"]?.jsonPrimitive?.content!!
+                            UserContact(id, name)
                         }
                     } ?: emptyList()
                     if (token != null && userId != null && username != null) {

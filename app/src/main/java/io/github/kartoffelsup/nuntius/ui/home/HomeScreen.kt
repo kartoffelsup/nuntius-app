@@ -28,11 +28,12 @@ import kotlinx.coroutines.withContext
 data class MessageHolder(val message: String = "")
 
 @Composable
-fun HomeScreen(appState: AppState, padding: PaddingValues) {
-    val coroutineScope = rememberCoroutineScope()
+fun HomeScreen(appState: AppState, innerPadding: PaddingValues) {
     val user = appState.userData
     var messageHolder by remember { mutableStateOf(MessageHolder()) }
-    Column(modifier = Modifier.padding(padding)) {
+    val coroutineScope = rememberCoroutineScope()
+
+    Column(modifier = Modifier.padding(innerPadding)) {
         Column {
             CenteredRow {
                 Text(
@@ -47,10 +48,15 @@ fun HomeScreen(appState: AppState, padding: PaddingValues) {
             if (user != null) {
                 CenteredRow {
                     Button(modifier = Modifier.padding(start = 5.dp, end = 5.dp), onClick = {
-                        coroutineScope.launch(Dispatchers.IO) {
-                            val result = MessageService.send(user.userId, "Hello There!", user)
+                        coroutineScope.launch {
+                            val result = withContext(Dispatchers.IO) {
+                                MessageService.send(user.userId, "Hello There!", user)
+                            }
                             withContext(Dispatchers.Main) {
-                               messageHolder = messageHolder.copy(message = result.fold({ it }, { it.messageId }))
+                                messageHolder = messageHolder.copy(
+                                    message = result.fold({ it },
+                                        { it.messageId })
+                                )
                             }
                         }
                     }) {
@@ -65,9 +71,14 @@ fun HomeScreen(appState: AppState, padding: PaddingValues) {
         }
 
         if (user != null) {
-            Column(Modifier.fillMaxSize().then(Modifier.wrapContentSize(Alignment.Center))) {
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .then(Modifier.wrapContentSize(Alignment.Center))
+            ) {
                 Text(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .then(Modifier.wrapContentSize(Alignment.Center)),
                     text = "User",
                     style = TextStyle.Default

@@ -6,8 +6,8 @@ import io.github.kartoffelsup.nuntius.api.notification.NuntiusNotificationDto
 import io.github.kartoffelsup.nuntius.data.Security
 import io.github.kartoffelsup.nuntius.data.jsonx
 import io.github.kartoffelsup.nuntius.data.user.UserService
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.greenrobot.eventbus.EventBus
@@ -16,7 +16,7 @@ class FirebaseService : FirebaseMessagingService() {
     override fun onNewToken(newToken: String) {
         super.onNewToken(newToken)
         Security.getUser()?.let { user ->
-            runBlocking {
+            runBlocking(Dispatchers.IO) {
                 UserService.updateToken(newToken, user)
             }
         }

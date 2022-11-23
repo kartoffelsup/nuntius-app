@@ -13,7 +13,8 @@ fun CenteredRow(
     modifier: Modifier = Modifier,
     children: @Composable() RowScope.() -> Unit
 ) {
-    Row(modifier.then(Modifier.fillMaxWidth()), horizontalArrangement = Arrangement.Center) {
-        children()
-    }
+    Row(
+        modifier.then(Modifier.fillMaxWidth()),
+        horizontalArrangement = Arrangement.Center
+    ) { children() }
 }

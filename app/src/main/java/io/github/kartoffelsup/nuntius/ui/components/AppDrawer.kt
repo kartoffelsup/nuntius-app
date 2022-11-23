@@ -48,7 +48,7 @@ fun AppDrawer(
         if (appState.userData == null) {
             DrawerButton(
                 icon = R.drawable.ic_outline_person_outline_24,
-                label = stringResource(R.string.button_text_signin),
+                label = stringResource(R.string.common_signin_button_text),
                 isSelected = currentScreen == Screen.Login
             ) {
                 navigationViewModel.navigateTo(Screen.Login)
@@ -120,8 +120,8 @@ private fun DrawerButton(
                     modifier = Modifier.align(Alignment.CenterVertically)
                         .size(24.dp),
                     painter = painterResource(icon),
-                    tint = textIconColor,
-                    contentDescription = null
+                    contentDescription = "icon",
+                    tint = textIconColor
                 )
                 Spacer(Modifier.width(16.dp))
                 Text(

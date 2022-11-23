@@ -29,7 +29,7 @@ class AppState constructor(
     userData: UserData? = null,
     scaffoldState: ScaffoldState = ScaffoldState(
         drawerState = DrawerState(
-            DrawerValue.Closed
+            initialValue = DrawerValue.Closed
         ), SnackbarHostState()
     ),
     appDrawerState: NuntiusDrawerState = NuntiusDrawerState(),
@@ -45,8 +45,9 @@ class AppState constructor(
 }
 
 @Composable
-fun NutriusApp(appState: AppState, navigationViewModel: NavigationViewModel) {
+fun NuntiusApp(appState: AppState, navigationViewModel: NavigationViewModel) {
     val coroutineScope = rememberCoroutineScope()
+
     MaterialTheme(colors = lightThemeColors) {
         Column {
             Scaffold(
@@ -56,7 +57,9 @@ fun NutriusApp(appState: AppState, navigationViewModel: NavigationViewModel) {
                         currentScreen = navigationViewModel.currentScreen,
                         appState = appState,
                         closeDrawer = {
-                            coroutineScope.launch { appState.scaffoldState.drawerState.close() }
+                            coroutineScope.launch {
+                                appState.scaffoldState.drawerState.close()
+                            }
                         },
                         navigationViewModel = navigationViewModel
                     )
@@ -71,33 +74,39 @@ fun NutriusApp(appState: AppState, navigationViewModel: NavigationViewModel) {
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Box(Modifier.clickable(onClick = {
-                                coroutineScope.launch { appState.scaffoldState.drawerState.open() }
+                                coroutineScope.launch {
+                                    appState.scaffoldState.drawerState.open()
+                                }
                             })) {
                                 Icon(
                                     painter = painterResource(R.drawable.ic_outline_menu_24),
-                                    modifier = Modifier.fillMaxHeight().then(
-                                        Modifier.wrapContentSize(
-                                            Alignment.CenterStart
-                                        )
-                                    ),
-                                    tint = Color.White,
-                                    contentDescription = null
+                                    contentDescription = "ic_outline_menu",
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .then(
+                                            Modifier.wrapContentSize(
+                                                Alignment.CenterStart
+                                            )
+                                        ),
+                                    tint = Color.White
                                 )
                             }
                             Text(
                                 text = stringResource(appState.titleResource),
-                                modifier = Modifier.wrapContentSize(Alignment.Center)
+                                modifier = Modifier
+                                    .wrapContentSize(Alignment.Center)
                                     .align(Alignment.CenterVertically)
                             )
                         }
                     }
-                }) { innerPadding ->
-                AppContent(
-                    appState,
-                    innerPadding,
-                    navigationViewModel
-                )
-            }
+                },
+                content = { innerPadding ->
+                    AppContent(
+                        appState,
+                        innerPadding,
+                        navigationViewModel
+                    )
+                })
         }
     }
 }
@@ -144,7 +153,7 @@ fun NutriusAppPreview() {
             )
         )
     }
-    NutriusApp(
+    NuntiusApp(
         appState = state, navigationViewModel = NavigationViewModel(SavedStateHandle())
     )
 }
