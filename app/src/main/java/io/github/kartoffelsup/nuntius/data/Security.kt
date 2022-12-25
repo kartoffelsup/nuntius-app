@@ -47,8 +47,8 @@ object Security {
         val contacts = buildJsonArray {
             event.userData.contacts.contacts.map {
                 addJsonObject {
-                    "userId" to it.userId
-                    "username" to it.username
+                    put("userId", it.userId)
+                    put("username", it.username)
                 }
             }
         }

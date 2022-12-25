@@ -1,7 +1,12 @@
 <resources>
     <string name="app_name">nuntius-app</string>
+
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
+    <string name="prompt_username">Username</string>
+
+
+
     <string name="logout_button_text">Logout</string>
     <string name="messages_label">Messages</string>
     <string name="button_text_send">Send</string>
@@ -9,4 +14,5 @@
     <string name="message_contact">Message %1$s</string>
     <string name="server_connect_error">Unable to connect to the server.</string>
     <string name="internal_error" >Encountered internal error.</string>
+    <string name="prompt_signup">Sign up</string>
 </resources>

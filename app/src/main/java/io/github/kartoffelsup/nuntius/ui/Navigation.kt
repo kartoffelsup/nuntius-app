@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModel
 sealed class Screen(val name: String) {
     object Home : Screen("Home")
     object Login : Screen("Login")
+    object SignUp : Screen("Sign up")
     object Messages : Screen("Messages")
 }
 
@@ -40,6 +41,7 @@ private fun Bundle.toScreen(): Screen {
         Screen.Home.name -> Screen.Home
         Screen.Login.name -> Screen.Login
         Screen.Messages.name -> Screen.Messages
+        Screen.SignUp.name -> Screen.SignUp
         else -> Screen.Home
     }
 }

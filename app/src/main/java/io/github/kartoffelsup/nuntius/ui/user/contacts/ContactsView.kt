@@ -39,7 +39,7 @@ fun ContactsView(appState: AppState, navigationViewModel: NavigationViewModel) {
                 Column {
                     appState.userData?.contacts?.contacts?.forEach { contact ->
                         var contactState by remember { mutableStateOf(ContactState(true)) }
-                        Column {
+                        Column(modifier = Modifier.padding(3.dp).padding(1.dp)) {
                             Box(Modifier.clickable(onClick = {
                                 contactState = contactState.copy(open = !contactState.open)
                             })) {

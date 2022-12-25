@@ -20,9 +20,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kartoffelsup.nuntius.R
 import io.github.kartoffelsup.nuntius.api.user.result.UserContact
+import io.github.kartoffelsup.nuntius.ui.common.SubmitButton
+import io.github.kartoffelsup.nuntius.ui.common.SubmitButtonState
 import io.github.kartoffelsup.nuntius.ui.components.CenteredRow
-import io.github.kartoffelsup.nuntius.ui.user.SubmitButton
-import io.github.kartoffelsup.nuntius.ui.user.SubmitButtonState
 
 sealed class Message {
     abstract val text: String

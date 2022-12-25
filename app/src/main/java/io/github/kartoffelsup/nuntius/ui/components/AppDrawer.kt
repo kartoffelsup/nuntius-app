@@ -54,6 +54,14 @@ fun AppDrawer(
                 navigationViewModel.navigateTo(Screen.Login)
                 closeDrawer()
             }
+            DrawerButton(
+                icon = R.drawable.ic_outline_person_outline_24,
+                label = stringResource(R.string.prompt_signup),
+                isSelected = currentScreen == Screen.SignUp
+            ) {
+                navigationViewModel.navigateTo(Screen.SignUp)
+                closeDrawer()
+            }
         } else {
             DrawerButton(
                 icon = R.drawable.ic_outline_email_24,

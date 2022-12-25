@@ -3,12 +3,10 @@ package io.github.kartoffelsup.nuntius.data.user
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import io.github.kartoffelsup.nuntius.api.user.request.CreateUserRequest
 import io.github.kartoffelsup.nuntius.api.user.request.LoginRequest
 import io.github.kartoffelsup.nuntius.api.user.request.UpdateNotificationTokenRequest
-import io.github.kartoffelsup.nuntius.api.user.result.FailedLogin
-import io.github.kartoffelsup.nuntius.api.user.result.LoginResult
-import io.github.kartoffelsup.nuntius.api.user.result.SuccessfulLogin
-import io.github.kartoffelsup.nuntius.api.user.result.UserContacts
+import io.github.kartoffelsup.nuntius.api.user.result.*
 import io.github.kartoffelsup.nuntius.client.ApiResult
 import io.github.kartoffelsup.nuntius.client.Failure
 import io.github.kartoffelsup.nuntius.client.Success
@@ -21,6 +19,23 @@ import org.greenrobot.eventbus.EventBus
 object UserService {
 
     private val bus: EventBus = EventBus.getDefault()
+
+    suspend fun signup(username: String, email: String, password: String): Either<String, CreateUserResult> {
+        val request = CreateUserRequest(username, email, password)
+        val apiResult = nuntiusApiService.post(
+            "user",
+            request,
+            CreateUserRequest.serializer(),
+            CreateUserResult.serializer()
+        )
+
+        return when (apiResult) {
+            is Success<*> -> {
+                (apiResult.payload as CreateUserResult).right()
+            }
+            is Failure -> apiResult.reason.left()
+        }
+    }
 
     suspend fun login(email: String, password: String): LoginResult {
         val request = LoginRequest(email, password)

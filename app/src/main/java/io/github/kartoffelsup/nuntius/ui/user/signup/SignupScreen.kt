@@ -1,6 +1,5 @@
-package io.github.kartoffelsup.nuntius.ui.user
+package io.github.kartoffelsup.nuntius.ui.user.signup
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -14,28 +13,29 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.SavedStateHandle
+import arrow.core.Either
+import arrow.core.left
 import io.github.kartoffelsup.nuntius.R
-import io.github.kartoffelsup.nuntius.api.user.result.FailedLogin
-import io.github.kartoffelsup.nuntius.api.user.result.LoginResult
-import io.github.kartoffelsup.nuntius.api.user.result.SuccessfulLogin
+import io.github.kartoffelsup.nuntius.api.user.result.CreateUserResult
 import io.github.kartoffelsup.nuntius.data.user.UserService
 import io.github.kartoffelsup.nuntius.ui.AppState
 import io.github.kartoffelsup.nuntius.ui.NavigationViewModel
 import io.github.kartoffelsup.nuntius.ui.Screen
+import io.github.kartoffelsup.nuntius.ui.common.FieldState
+import io.github.kartoffelsup.nuntius.ui.common.ValidationResult
 import io.github.kartoffelsup.nuntius.ui.components.CenteredRow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.ConnectException
 
-data class LoginError(
+data class SignupError(
     val text: String = ""
 )
 
 @Composable
-fun UserLoginScreen(
+fun SignupScreen(
     appState: AppState,
     innerPadding: PaddingValues,
     navigationViewModel: NavigationViewModel
@@ -44,9 +44,20 @@ fun UserLoginScreen(
         navigationViewModel.navigateTo(Screen.Home)
     }
 
-    var loginError by remember { mutableStateOf(LoginError("")) }
+    var signupError by remember { mutableStateOf(SignupError("")) }
 
     val coroutineScope = rememberCoroutineScope()
+
+    val usernameFieldState = FieldState(
+        id = "usernameField",
+        value = TextFieldValue(""),
+        validate = { value ->
+            when {
+                value.isEmpty() -> ValidationResult.Invalid("This field is required.")
+                value.length < 3 -> ValidationResult.Invalid("Username must at least be 3 characters long.")
+                else -> ValidationResult.Valid
+            }
+        })
 
     val emailFieldState =
         FieldState(
@@ -73,51 +84,50 @@ fun UserLoginScreen(
             })
     val serverConnectMessage = stringResource(R.string.server_connect_error)
     val internalError = stringResource(R.string.internal_error)
-    val formState: LoginFormState = remember {
-        LoginFormState(
+    val formState: SignupFormState = remember {
+        SignupFormState(
+            usernameFieldState = usernameFieldState,
             emailFieldState = emailFieldState,
             passwordFieldState = passwordFieldState
         ) {
+            val username = usernameFieldState.value
             val mail = emailFieldState.value
             val pw = passwordFieldState.value
             // Reset errors on submit
-            loginError = loginError.copy(text = "")
+            signupError = signupError.copy(text = "")
 
             coroutineScope.launch {
-                val result: LoginResult = withContext(Dispatchers.IO) {
-                     try {
-                        UserService.login(mail.text, pw.text)
+                val result: Either<String, CreateUserResult> = withContext(Dispatchers.IO) {
+                    try {
+                        UserService.signup(username.text, mail.text, pw.text)
                     } catch (ioex: IOException) {
                         if (ioex is ConnectException) {
-                            FailedLogin(serverConnectMessage)
+                            serverConnectMessage.left()
                         } else {
                             println(ioex)
-                            FailedLogin(internalError)
+                            internalError.left()
                         }
                     }
                 }
 
                 withContext(Dispatchers.Main) {
-                    when (result) {
-                        is SuccessfulLogin -> {
-                            navigationViewModel.navigateTo(Screen.Home)
-                        }
-                        is FailedLogin -> {
-                            loginError =
-                                loginError.copy(text = "Login failed: ${result.message}")
-                        }
-                    }
+                    result.fold(
+                        ifLeft = { message ->
+                            signupError = signupError.copy(text = "Sign up failed: $message")
+                        },
+                        ifRight = { println(it) }
+                    )
                 }
             }
         }
     }
 
     Column(modifier = Modifier.padding(innerPadding)) {
-        LoginForm(formState = formState)
+        SignupForm(formState = formState)
         CenteredRow {
-            if (loginError.text.isNotEmpty()) {
+            if (signupError.text.isNotEmpty()) {
                 Text(
-                    text = loginError.text,
+                    text = signupError.text,
                     style = TextStyle.Default.copy(
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colors.error
@@ -130,6 +140,6 @@ fun UserLoginScreen(
 
 @Preview
 @Composable
-fun LoginPreview() {
-    UserLoginScreen(AppState(), PaddingValues(), NavigationViewModel(SavedStateHandle()))
+fun SignupPreview() {
+    SignupScreen(AppState(), PaddingValues(), NavigationViewModel(SavedStateHandle()))
 }

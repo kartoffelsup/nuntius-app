@@ -22,7 +22,8 @@ import io.github.kartoffelsup.nuntius.ui.components.NuntiusDrawerState
 import io.github.kartoffelsup.nuntius.ui.home.HomeScreen
 import io.github.kartoffelsup.nuntius.ui.message.MessageScreen
 import io.github.kartoffelsup.nuntius.ui.message.MessageScreenState
-import io.github.kartoffelsup.nuntius.ui.user.UserLoginScreen
+import io.github.kartoffelsup.nuntius.ui.user.login.UserLoginScreen
+import io.github.kartoffelsup.nuntius.ui.user.signup.SignupScreen
 import kotlinx.coroutines.launch
 
 class AppState constructor(
@@ -71,7 +72,7 @@ fun NuntiusApp(appState: AppState, navigationViewModel: NavigationViewModel) {
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
+                            horizontalArrangement = Arrangement.Start
                         ) {
                             Box(Modifier.clickable(onClick = {
                                 coroutineScope.launch {
@@ -121,6 +122,7 @@ private fun AppContent(
         is Screen.Home -> HomeScreen(appState, innerPadding)
         is Screen.Login -> UserLoginScreen(appState, innerPadding, navigationViewModel)
         is Screen.Messages -> MessageScreen(appState.messageScreenState)
+        is Screen.SignUp -> SignupScreen(appState, innerPadding, navigationViewModel)
     }
 }
 
